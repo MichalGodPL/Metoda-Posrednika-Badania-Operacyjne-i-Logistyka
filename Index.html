@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Metoda Pośrednika - Logistyka</title>
+    
+    <!-- Import Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Import Alpine.js -->
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+    <!-- Import Poppins font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Import Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Twój plik CSS -->
+    <link rel="stylesheet" href="Style.css">
+</head>
+<body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex items-center justify-center">
+    <div class="container mx-auto p-6 max-w-5xl">
+        <h1 class="text-4xl font-bold text-center mb-8 text-white tracking-tight">
+            <i class="fas fa-truck mr-2"></i> Metoda Pośrednika w Logistyce
+        </h1>
+        
+        <div x-data="{ 
+            tab: 'input', 
+            rows: '', 
+            cols: '', 
+            costs: [], 
+            supply: [], 
+            demand: [], 
+            matrixGenerated: false 
+        }" 
+             x-init="costs = []; supply = []; demand = [];"
+             class="bg-gray-800 rounded-xl shadow-2xl p-8">
+            <!-- Zakładki -->
+            <div class="flex justify-center space-x-4 mb-8">
+                <button @click="tab = 'input'" 
+                        :class="{ 'bg-blue-700 text-white': tab === 'input', 'bg-gray-700 text-gray-300': tab !== 'input' }"
+                        class="px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                    Wprowadź dane
+                </button>
+                <button @click="tab = 'results'" 
+                        :class="{ 'bg-blue-700 text-white': tab === 'results', 'bg-gray-700 text-gray-300': tab !== 'results' }"
+                        class="px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                    Wyniki
+                </button>
+                <button @click="tab = 'chart'" 
+                        :class="{ 'bg-blue-700 text-white': tab === 'chart', 'bg-gray-700 text-gray-300': tab !== 'chart' }"
+                        class="px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
+                    Wykres
+                </button>
+            </div>
+
+            <!-- Sekcja wprowadzania danych -->
+            <div x-show="tab === 'input'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <h2 class="text-2xl font-semibold mb-6 text-white">Wprowadź dane problemu transportowego</h2>
+                
+                <!-- Kreator rozmiaru macierzy -->
+                <div x-show="!matrixGenerated" class="mb-6">
+                    <label class="block mb-3 text-lg">Określ rozmiar macierzy (dostawcy x odbiorcy):</label>
+                    <div class="flex space-x-4 items-center justify-center">
+                        <input x-model.number="rows" type="number" min="1" 
+                               class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                               placeholder="Dostawcy">
+                        <span class="text-2xl">×</span>
+                        <input x-model.number="cols" type="number" min="1" 
+                               class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                               placeholder="Odbiorcy">
+                    </div>
+                    <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+                            class="mt-4 bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-all duration-300 transform hover:scale-105">
+                        Wygeneruj macierz
+                    </button>
+                </div>
+
+                <!-- Generowanie macierzy kosztów -->
+                <div x-show="matrixGenerated" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
+                    <h3 class="text-lg font-medium mb-4 text-white">Macierz kosztów:</h3>
+                    <div class="overflow-x-auto">
+                        <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 2}, 80px);`">
+                            <!-- Nagłówki odbiorców -->
+                            <div class="p-2"></div> <!-- Puste miejsce w lewym górnym rogu -->
+                            <template x-for="j in cols" :key="j">
+                                <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
+                            </template>
+                            <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
+
+                            <!-- Wiersze macierzy kosztów -->
+                            <template x-for="i in rows" :key="i">
+                                <!-- Każdy wiersz jako osobny zestaw elementów w siatce -->
+                                <div style="display: contents;">
+                                    <!-- Etykieta dostawcy -->
+                                    <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
+                                    
+                                    <!-- Pola kosztów -->
+                                    <template x-for="j in cols" :key="j">
+                                        <div class="p-2">
+                                            <input type="number" x-model.number="costs[i-1][j-1]" 
+                                                   class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                   placeholder="0">
+                                        </div>
+                                    </template>
+
+                                    <!-- Pole podaży -->
+                                    <div class="p-2">
+                                        <input type="number" x-model.number="supply[i-1]" 
+                                               class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                               placeholder="0">
+                                    </div>
+                                </div>
+                            </template>
+
+                            <!-- Wiersz popytu -->
+                            <div class="text-center font-medium text-blue-400 p-2">Popyt</div>
+                            <template x-for="j in cols" :key="j">
+                                <div class="p-2">
+                                    <input type="number" x-model.number="demand[j-1]" 
+                                           class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                           placeholder="0">
+                                </div>
+                            </template>
+                            <div class="p-2"></div> <!-- Puste miejsce -->
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between mt-6">
+                        <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
+                                class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-500 transition-all duration-300 transform hover:scale-105">
+                            Wyczyść
+                        </button>
+                        <button class="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-all duration-300 transform hover:scale-105">
+                            Oblicz
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sekcja wyników -->
+            <div x-show="tab === 'results'" class="text-center" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Wyniki obliczeń</h2>
+                <p>Tutaj pojawią się wyniki metody pośrednika...</p>
+            </div>
+
+            <!-- Sekcja wykresu -->
+            <div x-show="tab === 'chart'" class="text-center" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
+                <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
+                <div id="chart-container" class="w-full h-96"></div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

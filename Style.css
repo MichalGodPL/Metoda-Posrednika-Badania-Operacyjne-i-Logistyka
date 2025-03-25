@@ -1,0 +1,56 @@
+/* Style.css */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+    color: #e5e7eb;
+}
+
+.container {
+    max-width: 1200px;
+}
+
+button {
+    transition: all 0.3s ease;
+}
+
+input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+}
+
+.bg-gray-800 {
+    background: #1f2937;
+    border: 1px solid #374151;
+}
+
+h1, h2, h3 {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+button:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Stylizacja siatki macierzy */
+.grid {
+    display: grid;
+    align-items: center;
+    justify-items: center;
+}
+
+.grid input {
+    width: 60px;
+    text-align: center;
+}
