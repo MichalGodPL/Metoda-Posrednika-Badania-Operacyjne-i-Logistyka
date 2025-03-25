@@ -8,8 +8,8 @@ class App:
         self.window = webview.create_window(
             "Metoda Pośrednika - Logistyka",
             "index.html",
-            width=1200,
-            height=800,
+            width=1600,  # Ustawienie szerokości na 1600 pikseli
+            height=900,  # Ustawienie wysokości na 900 pikseli
             resizable=True
         )
         webview.start()

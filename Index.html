@@ -38,22 +38,24 @@
              x-init="costs = []; supply = []; demand = [];"
              class="bg-gray-800 rounded-xl shadow-2xl p-8">
             <!-- Zakładki -->
-            <div class="flex justify-center space-x-4 mb-8">
-                <button @click="tab = 'input'" 
-                        :class="{ 'bg-blue-700 text-white': tab === 'input', 'bg-gray-700 text-gray-300': tab !== 'input' }"
-                        class="px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
-                    Wprowadź dane
-                </button>
-                <button @click="tab = 'results'" 
-                        :class="{ 'bg-blue-700 text-white': tab === 'results', 'bg-gray-700 text-gray-300': tab !== 'results' }"
-                        class="px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
-                    Wyniki
-                </button>
-                <button @click="tab = 'chart'" 
-                        :class="{ 'bg-blue-700 text-white': tab === 'chart', 'bg-gray-700 text-gray-300': tab !== 'chart' }"
-                        class="px-6 py-3 rounded-lg font-medium transition-all duration-300 transform hover:scale-105">
-                    Wykres
-                </button>
+            <div class="flex justify-center mb-8">
+                <div class="dock flex justify-center space-x-4 bg-gray-900 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg">
+                    <button @click="tab = 'input'" 
+                            :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
+                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-keyboard text-2xl"></i>
+                    </button>
+                    <button @click="tab = 'results'" 
+                            :class="{ 'scale-110 text-green-400': tab === 'results', 'text-gray-400': tab !== 'results' }"
+                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-list-check text-2xl"></i>
+                    </button>
+                    <button @click="tab = 'chart'" 
+                            :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
+                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                    </button>
+                </div>
             </div>
 
             <!-- Sekcja wprowadzania danych -->
@@ -62,7 +64,7 @@
                 
                 <!-- Kreator rozmiaru macierzy -->
                 <div x-show="!matrixGenerated" class="mb-6">
-                    <label class="block mb-3 text-lg">Określ rozmiar macierzy (dostawcy x odbiorcy):</label>
+                    <label class="block mb-3 text-lg">Określ Rozmiar Macierzy Kosztów:</label>
                     <div class="flex space-x-4 items-center justify-center">
                         <input x-model.number="rows" type="number" min="1" 
                                class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
