@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metoda Pośrednika - Logistyka</title>
+    <    <title>Metoda Pośrednika - Logistyka</title>
     
     <!-- Import Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -17,7 +17,7 @@
     <!-- Import Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Twój plik CSS -->
+    <!-- Twój plik CSS (jeśli istnieje) -->
     <link rel="stylesheet" href="Style.css">
 </head>
 <body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center justify-center">
@@ -33,11 +33,13 @@
             resultData: null,
             async calculate() {
                 try {
+                    console.log('Rozpoczynam obliczenia...', { costs: this.costs, supply: this.supply, demand: this.demand });
                     let response = await window.pywebview.api.calculate(this.costs, this.supply, this.demand);
+                    console.log('Otrzymano odpowiedź:', response);
                     this.resultData = response;
                     this.tab = 'results';
                 } catch (e) {
-                    console.error(e);
+                    console.error('Błąd podczas obliczeń:', e);
                     alert('Błąd: ' + e);
                 }
             }
@@ -119,88 +121,159 @@
                                         <input type="number" x-model.number="demand[j-1]" 
                                                class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                                placeholder="0">
+                                            </div>
+                                        </template>
+                                        <div class="p-2"></div>
                                     </div>
-                                </template>
-                                <div class="p-2"></div>
-                            </div>
-                        </div>
+                                </div>
 
-                        <div class="flex justify-between mt-6">
-                            <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
-                                    class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
-                                <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
-                            </button>
-                            <button @click="calculate()"
-                                    class="p-3 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
-                                <i class="fas fa-table text-xl"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+                                <div class="flex justify-between mt-6">
+                                    <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demandავ
 
-                <!-- Sekcja wyników -->
-                <div x-show="tab === 'results'" 
-                     x-transition:enter="transition ease-out duration-500" 
-                     x-transition:enter-start="opacity-0 transform -translate-y-4" 
-                     x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-center justify-center">
-                    <div class="text-center">
-                        <h2 class="text-2xl font-semibold mb-4 text-white">Wyniki obliczeń</h2>
-                        <template x-if="resultData">
-                            <div class="text-center">
-                                <p class="mb-4">Całkowity koszt: <span x-text="resultData.total_cost"></span></p>
-                                <div class="inline-block text-left">
-                                    <table class="table-auto">
-                                        <tbody>
-                                            <template x-for="(row, i) in resultData.allocation" :key="i">
-                                                <tr>
-                                                    <template x-for="cell in row" :key="cell">
-                                                        <td class="border px-2 py-1" x-text="cell"></td>
-                                                    </template>
-                                                </tr>
-                                            </template>
-                                        </tbody>
-                                    </table>
+                                    demand = [];" 
+                                            class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
+                                        <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
+                                    </button>
+                                    <button @click="calculate()"
+                                            class="p-3 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+                                        <i class="fas fa-table text-xl"></i>
+                                    </button>
                                 </div>
                             </div>
-                        </template>
-                    </div>
-                </div>
+                        </div>
 
-                <!-- Sekcja wykresu -->
-                <div x-show="tab === 'chart'" 
-                     x-transition:enter="transition ease-out duration-500" 
-                     x-transition:enter-start="opacity-0 transform -translate-y-4" 
-                     x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-center justify-center">
-                    <div class="text-center w-full">
-                        <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
-                        <div id="chart-container" class="w-full h-96"></div>
+                        <!-- Sekcja wyników -->
+                        <div x-show="tab === 'results'" 
+                             x-transition:enter="transition ease-out duration-500" 
+                             x-transition:enter-start="opacity-0 transform -translate-y-4" 
+                             x-transition:enter-end="opacity-100 transform translate-y-0" 
+                             class="flex-grow flex items-center justify-center">
+                            <div class="text-center w-full">
+                                <h2 class="text-2xl font-semibold mb-4 text-white">Wyniki obliczeń</h2>
+                                <template x-if="resultData">
+                                    <div class="text-left max-w-4xl mx-auto">
+                                        <p class="mb-4 text-lg">Całkowity koszt: <span class="font-bold text-green-400" x-text="resultData.total_cost"></span></p>
+                                        
+                                        <h3 class="text-xl font-medium mb-2 text-white">Początkowa alokacja:</h3>
+                                        <div class="inline-block mb-4">
+                                            <table class="table-auto border-collapse border border-gray-600">
+                                                <tbody>
+                                                    <template x-for="(row, i) in resultData.initial_allocation" :key="i">
+                                                        <tr>
+                                                            <template x-for="cell in row" :key="cell">
+                                                                <td class="border border-gray-600 px-4 py-2" x-text="cell"></td>
+                                                            </template>
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <h3 class="text-xl font-medium mb-2 text-white">Końcowa alokacja:</h3>
+                                        <div class="inline-block mb-4">
+                                            <table class="table-auto border-collapse border border-gray-600">
+                                                <tbody>
+                                                    <template x-for="(row, i) in resultData.allocation" :key="i">
+                                                        <tr>
+                                                            <template x-for="cell in row" :key="cell">
+                                                                <td class="border border-gray-600 px-4 py-2" x-text="cell"></td>
+                                                            </template>
+                                                        </tr>
+                                                    </template>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <h3 class="text-xl font-medium mb-2 text-white">Potencjały:</h3>
+                                        <p class="mb-2">Dostawcy (u): <span x-text="resultData.potentials.u.join(', ')"></span></p>
+                                        <p class="mb-4">Odbiorcy (v): <span x-text="resultData.potentials.v.join(', ')"></span></p>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- Sekcja wykresu -->
+                        <div x-show="tab === 'chart'" 
+                             x-transition:enter="transition ease-out duration-500" 
+                             x-transition:enter-start="opacity-0 transform -translate-y-4" 
+                             x-transition:enter-end="opacity-100 transform translate-y-0" 
+                             class="flex-grow flex items-center justify-center">
+                            <div class="text-center w-full">
+                                <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
+                                <canvas id="solutionChart" class="w-full h-96"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Zakładki (stały dock na dole) -->
+                    <div class="mt-8 flex justify-center">
+                        <div class="dock flex justify-center space-x-4 bg-gray-700 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
+                            <button @click="tab = 'input'" 
+                                    :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
+                                    class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-keyboard text-2xl"></i>
+                            </button>
+                            <button @click="tab = 'results'" 
+                                    :class="{ 'scale-110 text-green-400': tab === 'results', 'text-gray-400': tab !== 'results' }"
+                                    class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-list-check text-2xl"></i>
+                            </button>
+                            <button @click="tab = 'chart'" 
+                                    :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
+                                    class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                                <i class="fas fa-chart-line text-2xl"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Zakładki (stały dock na dole) -->
-            <div class="mt-8 flex justify-center">
-                <div class="dock flex justify-center space-x-4 bg-gray-700 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
-                    <button @click="tab = 'input'" 
-                            :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
-                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-keyboard text-2xl"></i>
-                    </button>
-                    <button @click="tab = 'results'" 
-                            :class="{ 'scale-110 text-green-400': tab === 'results', 'text-gray-400': tab !== 'results' }"
-                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-list-check text-2xl"></i>
-                    </button>
-                    <button @click="tab = 'chart'" 
-                            :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
-                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-chart-line text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+            <!-- Dodaj Chart.js -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    let chartInstance = null;
+                    const ctx = document.getElementById('solutionChart').getContext('2d');
+                    
+                    Alpine.effect(() => {
+                        const xData = Alpine.store('x-data');
+                        if (xData.tab === 'chart' && xData.resultData) {
+                            const data = xData.resultData;
+                            
+                            // Zniszcz poprzedni wykres, jeśli istnieje
+                            if (chartInstance) {
+                                chartInstance.destroy();
+                            }
+
+                            // Tworzenie nowego wykresu
+                            chartInstance = new Chart(ctx, {
+                                type: 'bar',
+                                data: {
+                                    labels: data.allocation.flatMap((row, i) => row.map((_, j) => `D${i+1}-O${j+1}`)),
+                                    datasets: [{
+                                        label: 'Alokacja',
+                                        data: data.allocation.flat(),
+                                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                        borderColor: 'rgba(75, 192, 192, 1)',
+                                        borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    scales: {
+                                        y: { beginAtZero: true }
+                                    },
+                                    plugins: {
+                                        legend: {
+                                            labels: {
+                                                color: '#ffffff'
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+                });
+            </script>
+        </body>
+    </html>
