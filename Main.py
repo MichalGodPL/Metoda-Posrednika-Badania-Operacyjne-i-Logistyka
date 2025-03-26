@@ -20,10 +20,12 @@ class API:
     def calculate(self, costs, supply, demand):
         allocation, total_cost, steps = logika(costs, supply, demand)
         return {
-            "allocation": allocation,
+            "allocation": steps["allocation"],  # Poprawka: użyj steps["allocation"]
             "total_cost": total_cost,
             "initial_allocation": steps["initial_allocation"],
-            "potentials": steps["potentials"]
+            "potentials": steps["potentials"],
+            "iterations": steps["iterations"],  # Dodajemy iterations
+            "improvement_possible": steps["improvement_possible"]  # Dodajemy improvement_possible
         }
 
 if __name__ == "__main__":
