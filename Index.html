@@ -35,29 +35,7 @@
             demand: [], 
             matrixGenerated: false 
         }" 
-             x-init="costs = []; supply = []; demand = [];"
-             class="bg-gray-800 rounded-xl shadow-2xl p-8">
-            <!-- Zakładki -->
-            <div class="flex justify-center mb-8">
-                <div class="dock flex justify-center space-x-4 bg-gray-900 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg">
-                    <button @click="tab = 'input'" 
-                            :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
-                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-keyboard text-2xl"></i>
-                    </button>
-                    <button @click="tab = 'results'" 
-                            :class="{ 'scale-110 text-green-400': tab === 'results', 'text-gray-400': tab !== 'results' }"
-                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-list-check text-2xl"></i>
-                    </button>
-                    <button @click="tab = 'chart'" 
-                            :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
-                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
-                        <i class="fas fa-chart-line text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-
+             x-init="costs = []; supply = []; demand = [];">
             <!-- Sekcja wprowadzania danych -->
             <div x-show="tab === 'input'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
                 <h2 class="text-2xl font-semibold mb-6 text-white">Wprowadź dane problemu transportowego</h2>
@@ -74,10 +52,12 @@
                                class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                placeholder="Odbiorcy">
                     </div>
-                    <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
-                            class="mt-4 bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-all duration-300 transform hover:scale-105">
-                        Wygeneruj macierz
-                    </button>
+                    <div class="flex justify-center mt-4">
+                        <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+                                class="generate-btn p-3 rounded-full transition-all duration-300">
+                            <i class="fas fa-plus text-2xl text-gray-400"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Generowanie macierzy kosztów -->
@@ -113,7 +93,7 @@
                                         <input type="number" x-model.number="supply[i-1]" 
                                                class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                                placeholder="0">
-                                    </div>
+                                        </div>
                                 </div>
                             </template>
 
@@ -152,6 +132,27 @@
             <div x-show="tab === 'chart'" class="text-center" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
                 <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
                 <div id="chart-container" class="w-full h-96"></div>
+            </div>
+
+            <!-- Zakładki (na dole) -->
+            <div class="flex justify-center mt-8">
+                <div class="dock flex justify-center space-x-4 bg-gray-900 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg">
+                    <button @click="tab = 'input'" 
+                            :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
+                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-keyboard text-2xl"></i>
+                    </button>
+                    <button @click="tab = 'results'" 
+                            :class="{ 'scale-110 text-green-400': tab === 'results', 'text-gray-400': tab !== 'results' }"
+                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-list-check text-2xl"></i>
+                    </button>
+                    <button @click="tab = 'chart'" 
+                            :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
+                            class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+                        <i class="fas fa-chart-line text-2xl"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

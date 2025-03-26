@@ -30,11 +30,6 @@ input:focus {
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
 }
 
-.bg-gray-800 {
-    background: #1f2937;
-    border: 1px solid #374151;
-}
-
 h1, h2, h3 {
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
@@ -80,4 +75,24 @@ button:hover {
 
 .dock button i {
     font-size: 1.75rem; /* Rozmiar ikony */
+}
+
+/* Stylizacja przycisku generowania macierzy */
+.generate-btn {
+    background: rgba(255, 255, 255, 0.1); /* Tło takie samo jak dock */
+    backdrop-filter: blur(10px); /* Efekt rozmycia tła, taki sam jak w docku */
+    border: none;
+    outline: none;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease; /* Dodajemy przejście dla tła */
+}
+
+.generate-btn:hover {
+    transform: scale(1.2); /* Efekt powiększenia przy najechaniu */
+    background: rgba(255, 255, 255, 0.15); /* Lekka zmiana koloru tła przy najechaniu */
+}
+
+.generate-btn i {
+    font-size: 1.75rem; /* Rozmiar ikony, taki sam jak w docku */
+    color: #9ca3af; /* Kolor ikony pasujący do docka (text-gray-400) */
 }
