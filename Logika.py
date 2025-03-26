@@ -20,6 +20,9 @@ def logika(cost_matrix, supply, demand):
         supply_left[min_i] -= amount
         demand_left[min_j] -= amount
 
+    # Zapisujemy początkową alokację
+    initial_allocation = [row[:] for row in allocation]
+
     # Obliczanie potencjałów
     def calculate_potentials(allocation):
         u = [None] * rows
@@ -55,14 +58,15 @@ def logika(cost_matrix, supply, demand):
 
     # Metoda pośrednika
     max_iterations = 100  # Zmniejszony limit dla szybszego testowania
-    iteration = 0
+    iterations = 0  # Licznik iteracji
 
-    while iteration < max_iterations:
+    while iterations < max_iterations:
         u, v = calculate_potentials(allocation)
         improvement_possible = False
         entering_cell = None
         max_saving = float('-inf')
 
+        # Sprawdzanie, czy możliwa jest poprawa
         for i in range(rows):
             for j in range(cols):
                 if allocation[i][j] == 0:
@@ -73,7 +77,7 @@ def logika(cost_matrix, supply, demand):
                         improvement_possible = True
 
         if not improvement_possible:
-            print(f"Brak możliwości poprawy po {iteration} iteracjach.")
+            print(f"Brak możliwości poprawy po {iterations} iteracjach.")
             break
 
         start_i, start_j = entering_cell
@@ -82,43 +86,40 @@ def logika(cost_matrix, supply, demand):
 
         def find_path(i, j, direction, amount=float('inf'), depth=0, max_depth=rows * cols):
             if depth > max_depth or (i, j) in visited:
-                return False
+                return False, amount
             visited.add((i, j))
             if allocation[i][j] == 0 and (i, j) != (start_i, start_j):
-                return False
+                return False, amount
             path.append((i, j, direction))
             
             if direction == '+':
                 for next_i in range(rows):
                     if next_i != i and allocation[next_i][j] > 0:
                         amount = min(amount, allocation[next_i][j])
-                        if find_path(next_i, j, '-', amount, depth + 1, max_depth):
-                            return True
+                        found, new_amount = find_path(next_i, j, '-', amount, depth + 1, max_depth)
+                        if found:
+                            return True, new_amount
                 path.pop()
             else:
                 for next_j in range(cols):
                     if next_j != j and allocation[i][next_j] > 0:
                         amount = min(amount, allocation[i][next_j])
-                        if find_path(i, next_j, '+', amount, depth + 1, max_depth):
-                            return True
+                        found, new_amount = find_path(i, next_j, '+', amount, depth + 1, max_depth)
+                        if found:
+                            return True, new_amount
                 path.pop()
             
             # Sprawdzamy, czy ścieżka się zamyka
             if (i, j) == (start_i, start_j) and len(path) > 2 and len(path) % 2 == 0:
-                return True
-            return False
+                return True, amount
+            return False, amount
 
         visited.clear()
         path.clear()
-        found = find_path(start_i, start_j, '+')
+        found, theta = find_path(start_i, start_j, '+')
         if not found or not path:
             print(f"Nie znaleziono zamkniętej ścieżki dla ({start_i}, {start_j}). Przerwanie.")
             break
-
-        theta = float('inf')
-        for p in path:
-            if p[2] == '-':
-                theta = min(theta, allocation[p[0]][p[1]])
 
         print(f"Ścieżka: {path}, theta: {theta}")
         for p in path:
@@ -128,18 +129,20 @@ def logika(cost_matrix, supply, demand):
             else:
                 allocation[i][j] -= theta
 
-        iteration += 1
-        print(f"Iteracja {iteration}, alokacja: {allocation}")
+        iterations += 1
+        print(f"Iteracja {iterations}, alokacja: {allocation}")
 
-    if iteration >= max_iterations:
+    if iterations >= max_iterations:
         print("Osiągnięto maksymalną liczbę iteracji.")
 
     total_cost = sum(cost_matrix[i][j] * allocation[i][j] for i in range(rows) for j in range(cols))
     steps = {
-        "initial_allocation": [row[:] for row in allocation],  # Początkowa alokacja to stan po metodzie min kosztu
-        "final_allocation": allocation,
+        "initial_allocation": initial_allocation,  # Początkowa alokacja
+        "allocation": allocation,  # Końcowa alokacja
         "total_cost": total_cost,
-        "potentials": {"u": u, "v": v}
+        "potentials": {"u": u, "v": v},
+        "iterations": iterations,  # Liczba iteracji
+        "improvement_possible": iterations > 0  # Czy poprawa była możliwa
     }
     
     return allocation, total_cost, steps
