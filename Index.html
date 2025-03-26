@@ -20,8 +20,8 @@
     <!-- Twój plik CSS -->
     <link rel="stylesheet" href="Style.css">
 </head>
-<body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex items-center justify-center">
-    <div class="container mx-auto p-6 max-w-5xl">
+<body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center justify-center">
+    <div class="container mx-auto p-6 max-w-5xl flex-grow flex flex-col">
         <h1 class="text-4xl font-bold text-center mb-8 text-white tracking-tight">
             <i class="fas fa-truck mr-2"></i> Metoda Pośrednika w Logistyce
         </h1>
@@ -35,108 +35,125 @@
             demand: [], 
             matrixGenerated: false 
         }" 
-             x-init="costs = []; supply = []; demand = [];">
-            <!-- Sekcja wprowadzania danych -->
-            <div x-show="tab === 'input'" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                <h2 class="text-2xl font-semibold mb-6 text-white">Wprowadź dane problemu transportowego</h2>
-                
-                <!-- Kreator rozmiaru macierzy -->
-                <div x-show="!matrixGenerated" class="mb-6">
-                    <label class="block mb-3 text-lg">Określ Rozmiar Macierzy Kosztów:</label>
-                    <div class="flex space-x-4 items-center justify-center">
-                        <input x-model.number="rows" type="number" min="1" 
-                               class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
-                               placeholder="Dostawcy">
-                        <span class="text-2xl">×</span>
-                        <input x-model.number="cols" type="number" min="1" 
-                               class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
-                               placeholder="Odbiorcy">
-                    </div>
-                    <div class="flex justify-center mt-4">
-                        <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
-                                class="generate-btn p-3 rounded-full transition-all duration-300">
-                            <i class="fas fa-plus text-2xl text-gray-400"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Generowanie macierzy kosztów -->
-                <div x-show="matrixGenerated" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform scale-95" x-transition:enter-end="opacity-100 transform scale-100">
-                    <h3 class="text-lg font-medium mb-4 text-white">Macierz kosztów:</h3>
-                    <div class="overflow-x-auto">
-                        <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 2}, 80px);`">
-                            <!-- Nagłówki odbiorców -->
-                            <div class="p-2"></div> <!-- Puste miejsce w lewym górnym rogu -->
-                            <template x-for="j in cols" :key="j">
-                                <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
-                            </template>
-                            <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
-
-                            <!-- Wiersze macierzy kosztów -->
-                            <template x-for="i in rows" :key="i">
-                                <!-- Każdy wiersz jako osobny zestaw elementów w siatce -->
-                                <div style="display: contents;">
-                                    <!-- Etykieta dostawcy -->
-                                    <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
-                                    
-                                    <!-- Pola kosztów -->
-                                    <template x-for="j in cols" :key="j">
-                                        <div class="p-2">
-                                            <input type="number" x-model.number="costs[i-1][j-1]" 
-                                                   class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
-                                                   placeholder="0">
-                                        </div>
-                                    </template>
-
-                                    <!-- Pole podaży -->
-                                    <div class="p-2">
-                                        <input type="number" x-model.number="supply[i-1]" 
-                                               class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
-                                               placeholder="0">
-                                        </div>
-                                </div>
-                            </template>
-
-                            <!-- Wiersz popytu -->
-                            <div class="text-center font-medium text-blue-400 p-2">Popyt</div>
-                            <template x-for="j in cols" :key="j">
-                                <div class="p-2">
-                                    <input type="number" x-model.number="demand[j-1]" 
-                                           class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
-                                           placeholder="0">
-                                </div>
-                            </template>
-                            <div class="p-2"></div> <!-- Puste miejsce -->
+             x-init="costs = []; supply = []; demand = [];" 
+             class="flex flex-col flex-grow justify-between">
+            <!-- Kontener zakładek o stałej wysokości -->
+            <div class="flex-grow min-h-[600px] flex flex-col">
+                <!-- Sekcja wprowadzania danych -->
+                <div x-show="tab === 'input'" 
+                     x-transition:enter="transition ease-out duration-500" 
+                     x-transition:enter-start="opacity-0 transform -translate-y-4" 
+                     x-transition:enter-end="opacity-100 transform translate-y-0" 
+                     class="flex-grow">
+                    <h2 class="text-2xl font-semibold mb-6 text-white">Wprowadź dane problemu transportowego</h2>
+                    
+                    <!-- Kreator rozmiaru macierzy -->
+                    <div x-show="!matrixGenerated" class="mb-6">
+                        <label class="block mb-3 text-lg">Określ Rozmiar Macierzy Kosztów:</label>
+                        <div class="flex space-x-4 items-center justify-center">
+                            <input x-model.number="rows" type="number" min="1" 
+                                   class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                   placeholder="Dostawcy">
+                            <span class="text-2xl">×</span>
+                            <input x-model.number="cols" type="number" min="1" 
+                                   class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                   placeholder="Odbiorcy">
+                        </div>
+                        <div class="flex justify-center mt-4">
+                            <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+                                    class="generate-btn p-3 rounded-full transition-all duration-300">
+                                <i class="fas fa-plus text-2xl text-gray-400"></i>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="flex justify-between mt-6">
-                        <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
-                                class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-500 transition-all duration-300 transform hover:scale-105">
-                            Wyczyść
-                        </button>
-                        <button class="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-all duration-300 transform hover:scale-105">
-                            Oblicz
-                        </button>
+                    <!-- Generowanie macierzy kosztów -->
+                    <div x-show="matrixGenerated" 
+                         x-transition:enter="transition ease-out duration-500" 
+                         x-transition:enter-start="opacity-0 transform scale-95" 
+                         x-transition:enter-end="opacity-100 transform scale-100">
+                        <h3 class="text-lg font-medium mb-4 text-white">Macierz kosztów:</h3>
+                        <div class="overflow-x-auto">
+                            <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 2}, 80px);`">
+                                <!-- Nagłówki odbiorców -->
+                                <div class="p-2"></div>
+                                <template x-for="j in cols" :key="j">
+                                    <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
+                                </template>
+                                <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
+
+                                <!-- Wiersze macierzy kosztów -->
+                                <template x-for="i in rows" :key="i">
+                                    <div style="display: contents;">
+                                        <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
+                                        <template x-for="j in cols" :key="j">
+                                            <div class="p-2">
+                                                <input type="number" x-model.number="costs[i-1][j-1]" 
+                                                       class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                       placeholder="0">
+                                            </div>
+                                        </template>
+                                        <div class="p-2">
+                                            <input type="number" x-model.number="supply[i-1]" 
+                                                   class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                   placeholder="0">
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- Wiersz popytu -->
+                                <div class="text-center font-medium text-blue-400 p-2">Popyt</div>
+                                <template x-for="j in cols" :key="j">
+                                    <div class="p-2">
+                                        <input type="number" x-model.number="demand[j-1]" 
+                                               class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                               placeholder="0">
+                                    </div>
+                                </template>
+                                <div class="p-2"></div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-between mt-6">
+                            <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
+                                    class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-500 transition-all duration-300 transform hover:scale-105">
+                                Wyczyść
+                            </button>
+                            <button class="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-all duration-300 transform hover:scale-105">
+                                Oblicz
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sekcja wyników -->
+                <div x-show="tab === 'results'" 
+                     x-transition:enter="transition ease-out duration-500" 
+                     x-transition:enter-start="opacity-0 transform -translate-y-4" 
+                     x-transition:enter-end="opacity-100 transform translate-y-0" 
+                     class="flex-grow flex items-center justify-center">
+                    <div class="text-center">
+                        <h2 class="text-2xl font-semibold mb-4 text-white">Wyniki obliczeń</h2>
+                        <p>Tutaj pojawią się wyniki metody pośrednika...</p>
+                    </div>
+                </div>
+
+                <!-- Sekcja wykresu -->
+                <div x-show="tab === 'chart'" 
+                     x-transition:enter="transition ease-out duration-500" 
+                     x-transition:enter-start="opacity-0 transform -translate-y-4" 
+                     x-transition:enter-end="opacity-100 transform translate-y-0" 
+                     class="flex-grow flex items-center justify-center">
+                    <div class="text-center w-full">
+                        <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
+                        <div id="chart-container" class="w-full h-96"></div>
                     </div>
                 </div>
             </div>
 
-            <!-- Sekcja wyników -->
-            <div x-show="tab === 'results'" class="text-center" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                <h2 class="text-2xl font-semibold mb-4 text-white">Wyniki obliczeń</h2>
-                <p>Tutaj pojawią się wyniki metody pośrednika...</p>
-            </div>
-
-            <!-- Sekcja wykresu -->
-            <div x-show="tab === 'chart'" class="text-center" x-transition:enter="transition ease-out duration-500" x-transition:enter-start="opacity-0 transform -translate-y-4" x-transition:enter-end="opacity-100 transform translate-y-0">
-                <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
-                <div id="chart-container" class="w-full h-96"></div>
-            </div>
-
-            <!-- Zakładki (na dole) -->
-            <div class="flex justify-center mt-8">
-                <div class="dock flex justify-center space-x-4 bg-gray-900 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg">
+            <!-- Zakładki (stały dock na dole) -->
+            <div class="mt-8 flex justify-center">
+                <div class="dock flex justify-center space-x-4 bg-gray-900 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
                     <button @click="tab = 'input'" 
                             :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
