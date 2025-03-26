@@ -32,9 +32,14 @@
             matrixGenerated: false,
             resultData: null,
             async calculate() {
-                let response = await window.pywebview.api.calculate(this.costs, this.supply, this.demand);
-                this.resultData = response;
-                this.tab = 'results';
+                try {
+                    let response = await window.pywebview.api.calculate(this.costs, this.supply, this.demand);
+                    this.resultData = response;
+                    this.tab = 'results';
+                } catch (e) {
+                    console.error(e);
+                    alert('Błąd: ' + e);
+                }
             }
          }"
          x-init="costs = []; supply = []; demand = [];">
@@ -42,17 +47,7 @@
             <i class="fas fa-truck mr-2"></i> Metoda Pośrednika w Logistyce
         </h1>
         
-        <div x-data="{ 
-            tab: 'input', 
-            rows: '', 
-            cols: '', 
-            costs: [], 
-            supply: [], 
-            demand: [], 
-            matrixGenerated: false 
-        }" 
-             x-init="costs = []; supply = []; demand = [];" 
-             class="flex flex-col flex-grow justify-between">
+        <div class="flex flex-col flex-grow justify-between">
             <!-- Kontener zakładek o stałej wysokości -->
             <div class="flex-grow min-h-[600px] flex flex-col">
                 <!-- Sekcja wprowadzania danych -->
@@ -132,12 +127,12 @@
 
                         <div class="flex justify-between mt-6">
                             <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
-                                    class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-500 transition-all duration-300 transform hover:scale-105">
-                                Wyczyść
+                                    class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
+                                <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
                             </button>
                             <button @click="calculate()"
-                                    class="bg-blue-700 text-white px-6 py-3 rounded-lg hover:bg-blue-800 transition-all duration-300 transform hover:scale-105">
-                                Oblicz
+                                    class="p-3 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+                                <i class="fas fa-table text-xl"></i>
                             </button>
                         </div>
                     </div>
@@ -187,7 +182,7 @@
 
             <!-- Zakładki (stały dock na dole) -->
             <div class="mt-8 flex justify-center">
-                <div class="dock flex justify-center space-x-4 bg-gray-900 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
+                <div class="dock flex justify-center space-x-4 bg-gray-700 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
                     <button @click="tab = 'input'" 
                             :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
