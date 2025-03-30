@@ -20,7 +20,7 @@ class App:
 
 class API:
     def calculate(self, costs, supply, demand):
-        # Parsowanie danych z JSON, bo frontend przesyła je jako stringi
+        # Parsowanie danych z JSON, bo frontend przesyła je jako stringi ez
         costs = json.loads(costs)
         supply = json.loads(supply)
         demand = json.loads(demand)
