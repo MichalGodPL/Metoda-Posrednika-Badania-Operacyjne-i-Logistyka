@@ -4,6 +4,12 @@ def logika(cost_matrix, supply, demand):
     supply_left = supply.copy()
     demand_left = demand.copy()
 
+    # Sprawdzenie równowagi podaży i popytu
+    total_supply = sum(supply)
+    total_demand = sum(demand)
+    if total_supply != total_demand:
+        raise ValueError(f"Suma podaży ({total_supply}) musi równać się sumie popytu ({total_demand})!")
+
     # Metoda minimalnego kosztu
     while any(supply_left) and any(demand_left):
         min_cost = float('inf')
@@ -20,17 +26,27 @@ def logika(cost_matrix, supply, demand):
         supply_left[min_i] -= amount
         demand_left[min_j] -= amount
 
-    # Zapisujemy początkową alokację
+    # Sprawdzenie degeneracji
+    occupied_cells = sum(1 for i in range(rows) for j in range(cols) if allocation[i][j] > 0)
+    required_cells = rows + cols - 1
+    if occupied_cells < required_cells:
+        # Dodajemy sztuczne alokacje o wartości epsilon
+        epsilon = 0.001
+        for i in range(rows):
+            for j in range(cols):
+                if allocation[i][j] == 0 and occupied_cells < required_cells:
+                    allocation[i][j] = epsilon
+                    occupied_cells += 1
+        print(f"Dodano sztuczne alokacje (epsilon={epsilon}) do rozwiązania zdegenerowanego.")
+
     initial_allocation = [row[:] for row in allocation]
 
-    # Obliczanie potencjałów
     def calculate_potentials(allocation):
         u = [None] * rows
         v = [None] * cols
         u[0] = 0  # Punkt odniesienia
         cells_to_solve = [(i, j) for i in range(rows) for j in range(cols) if allocation[i][j] > 0]
         
-        # Iteracyjne wypełnianie potencjałów
         while cells_to_solve:
             progress = False
             for i, j in cells_to_solve[:]:
@@ -42,10 +58,10 @@ def logika(cost_matrix, supply, demand):
                     u[i] = cost_matrix[i][j] - v[j]
                     cells_to_solve.remove((i, j))
                     progress = True
-            if not progress:  # Jeśli nie ma postępu, przerwij
+            if not progress:
                 break
         
-        # Wypełnij pozostałe None wartościami domyślnymi (np. 0)
+        # Wypełnienie pozostałych wartości zerami
         for i in range(rows):
             if u[i] is None:
                 u[i] = 0
@@ -56,9 +72,8 @@ def logika(cost_matrix, supply, demand):
         print(f"Potencjały: u={u}, v={v}")
         return u, v
 
-    # Metoda pośrednika
-    max_iterations = 100  # Zmniejszony limit dla szybszego testowania
-    iterations = 0  # Licznik iteracji
+    max_iterations = 100
+    iterations = 0
 
     while iterations < max_iterations:
         u, v = calculate_potentials(allocation)
@@ -66,7 +81,7 @@ def logika(cost_matrix, supply, demand):
         entering_cell = None
         max_saving = float('-inf')
 
-        # Sprawdzanie, czy możliwa jest poprawa
+        # Sprawdzanie możliwości poprawy
         for i in range(rows):
             for j in range(cols):
                 if allocation[i][j] == 0:
@@ -81,53 +96,49 @@ def logika(cost_matrix, supply, demand):
             break
 
         start_i, start_j = entering_cell
-        path = []
-        visited = set()
 
-        def find_path(i, j, direction, amount=float('inf'), depth=0, max_depth=rows * cols):
-            if depth > max_depth or (i, j) in visited:
-                return False, amount
-            visited.add((i, j))
-            if allocation[i][j] == 0 and (i, j) != (start_i, start_j):
-                return False, amount
-            path.append((i, j, direction))
-            
-            if direction == '+':
-                for next_i in range(rows):
-                    if next_i != i and allocation[next_i][j] > 0:
-                        amount = min(amount, allocation[next_i][j])
-                        found, new_amount = find_path(next_i, j, '-', amount, depth + 1, max_depth)
-                        if found:
-                            return True, new_amount
-                path.pop()
-            else:
-                for next_j in range(cols):
-                    if next_j != j and allocation[i][next_j] > 0:
-                        amount = min(amount, allocation[i][next_j])
-                        found, new_amount = find_path(i, next_j, '+', amount, depth + 1, max_depth)
-                        if found:
-                            return True, new_amount
-                path.pop()
-            
-            # Sprawdzamy, czy ścieżka się zamyka
-            if (i, j) == (start_i, start_j) and len(path) > 2 and len(path) % 2 == 0:
-                return True, amount
-            return False, amount
+        # Zoptymalizowane znajdowanie ścieżki za pomocą BFS
+        from collections import deque
+        def find_path(start_i, start_j):
+            queue = deque([(start_i, start_j, '+', [(start_i, start_j, '+')], float('inf'))])
+            visited = set()
+            while queue:
+                i, j, direction, current_path, theta = queue.popleft()
+                if (i, j) in visited and (i, j) == (start_i, start_j) and len(current_path) > 2 and len(current_path) % 2 == 0:
+                    theta = min(theta, min(allocation[r][c] for r, c, d in current_path if d == '-' and allocation[r][c] > epsilon))
+                    return current_path, theta
+                visited.add((i, j))
+                if allocation[i][j] <= epsilon and (i, j) != (start_i, start_j):
+                    continue
+                if direction == '+':
+                    for next_i in range(rows):
+                        if allocation[next_i][j] > epsilon and (next_i, j) not in visited:
+                            new_theta = min(theta, allocation[next_i][j])
+                            queue.append((next_i, j, '-', current_path + [(next_i, j, '-')], new_theta))
+                else:
+                    for next_j in range(cols):
+                        if allocation[i][next_j] > epsilon and (i, next_j) not in visited:
+                            new_theta = min(theta, allocation[i][next_j])
+                            queue.append((i, next_j, '+', current_path + [(i, next_j, '+')], new_theta))
+            return None, 0
 
-        visited.clear()
-        path.clear()
-        found, theta = find_path(start_i, start_j, '+')
-        if not found or not path:
+        path, theta = find_path(start_i, start_j)
+        if not path:
             print(f"Nie znaleziono zamkniętej ścieżki dla ({start_i}, {start_j}). Przerwanie.")
             break
 
         print(f"Ścieżka: {path}, theta: {theta}")
-        for p in path:
-            i, j, direction = p
+        for i, j, direction in path:
             if direction == '+':
                 allocation[i][j] += theta
             else:
                 allocation[i][j] -= theta
+
+        # Usuwanie epsilonów po aktualizacji
+        for i in range(rows):
+            for j in range(cols):
+                if 0 < allocation[i][j] <= epsilon:
+                    allocation[i][j] = 0
 
         iterations += 1
         print(f"Iteracja {iterations}, alokacja: {allocation}")
@@ -137,21 +148,35 @@ def logika(cost_matrix, supply, demand):
 
     total_cost = sum(cost_matrix[i][j] * allocation[i][j] for i in range(rows) for j in range(cols))
     steps = {
-        "initial_allocation": initial_allocation,  # Początkowa alokacja
-        "allocation": allocation,  # Końcowa alokacja
+        "initial_allocation": initial_allocation,
+        "allocation": allocation,
         "total_cost": total_cost,
         "potentials": {"u": u, "v": v},
-        "iterations": iterations,  # Liczba iteracji
-        "improvement_possible": iterations > 0  # Czy poprawa była możliwa
+        "iterations": iterations,
+        "improvement_possible": iterations > 0
     }
     
     return allocation, total_cost, steps
 
+# Interfejs pywebview
+import json
+import webview
+
+def calculate(costs, supply, demand):
+    allocation, total_cost, steps = logika(costs, supply, demand)
+    return steps
+
 if __name__ == "__main__":
-    costs = [[4, 6], [5, 7]]  # Test dla 2x2
+    # Testowy przykład
+    costs = [[4, 6], [5, 7]]
     supply = [50, 60]
     demand = [60, 50]
     allocation, cost, steps = logika(costs, supply, demand)
     print(f"Rozwiązanie: {allocation}")
     print(f"Całkowity koszt: {cost}")
     print(f"Kroki: {steps}")
+
+    # Uruchomienie interfejsu
+    api = type('API', (), {'calculate': lambda costs, supply, demand: calculate(json.loads(costs), json.loads(supply), json.loads(demand))})()
+    webview.create_window("Metoda Pośrednika", "index.html", js_api=api)
+    webview.start()

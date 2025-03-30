@@ -38,6 +38,10 @@ button:hover {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
+canvas {
+    display: block; /* Zapobiega problemom z wyświetlaniem */
+}
+
 /* Stylizacja siatki macierzy */
 .grid {
     display: grid;

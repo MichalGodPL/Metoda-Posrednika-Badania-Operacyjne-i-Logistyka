@@ -11,6 +11,12 @@
     <!-- Import Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
+    <!-- Import Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Import Charts.js -->
+    <script src="Charts.js"></script>
+
     <!-- Import Poppins font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -20,7 +26,7 @@
     <!-- Twój plik CSS (jeśli istnieje) -->
     <link rel="stylesheet" href="Style.css">
 
-    <!-- Style dla animacji -->
+    <!-- Style dla animacji i tabel -->
     <style>
         @keyframes slideIn {
             0% {
@@ -63,7 +69,7 @@
                 try {
                     console.log('Rozpoczynam obliczenia...', { costs: this.costs, supply: this.supply, demand: this.demand });
                     let response = await window.pywebview.api.calculate(this.costs, this.supply, this.demand);
-                    console.log('Otrzymano odpowiedź:', response);
+                    console.log('Otrzymano odpowiedź z backendu:', response);
                     this.resultData = response;
                     this.tab = 'results';
                 } catch (e) {
@@ -94,11 +100,11 @@
                             <label class="block mb-3 text-lg text-center">Określ Rozmiar Macierzy Kosztów:</label>
                             <div class="flex space-x-4 items-center justify-center">
                                 <input x-model.number="rows" type="number" min="1" 
-                                       class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                       class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                        placeholder="Dostawcy">
                                 <span class="text-2xl">×</span>
                                 <input x-model.number="cols" type="number" min="1" 
-                                       class="w-24 p-3 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                       class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                        placeholder="Odbiorcy">
                             </div>
                             <div class="flex justify-center mt-4">
@@ -133,13 +139,13 @@
                                                 <template x-for="j in cols" :key="j">
                                                     <div class="p-2">
                                                         <input type="number" x-model.number="costs[i-1][j-1]" 
-                                                               class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                               class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                                                placeholder="0">
                                                     </div>
                                                 </template>
                                                 <div class="p-2">
                                                     <input type="number" x-model.number="supply[i-1]" 
-                                                           class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                           class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                                            placeholder="0">
                                                 </div>
                                             </div>
@@ -150,7 +156,7 @@
                                         <template x-for="j in cols" :key="j">
                                             <div class="p-2">
                                                 <input type="number" x-model.number="demand[j-1]" 
-                                                       class="w-full p-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                       class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
                                                        placeholder="0">
                                             </div>
                                         </template>
@@ -164,7 +170,7 @@
                                         <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
                                     </button>
                                     <button @click="calculate()"
-                                            class="p-3 rounded-full bg-gray-700 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+                                            class="p-3 rounded-full bg-gray-800 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
                                         <i class="fas fa-table text-xl"></i>
                                     </button>
                                 </div>
@@ -287,8 +293,8 @@
                                 </div>
 
                                 <!-- Potencjały -->
-                                <div class="mb-8 p-6 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                    <p class="text-xl font-medium text-white" x-text="'Potencjały: u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></p>
+                                <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                    <p class="text-lg font-medium text-white" x-text="'Potencjały: u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></p>
                                 </div>
 
                                 <!-- Informacja o iteracjach -->
@@ -306,16 +312,27 @@
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
                      class="flex-grow flex items-center justify-center">
-                    <div class="text-center w-full">
-                        <h2 class="text-2xl font-semibold mb-4 text-white">Wykres rozwiązania</h2>
-                        <canvas id="solutionChart" class="w-full h-96"></canvas>
+                    <div class="text-center w-full max-w-4xl">
+                        <h2 class="text-2xl font-semibold mb-6 text-white">Wykresy rozwiązania</h2>
+                        <div class="flex flex-col md:flex-row justify-center space-y-8 md:space-y-0 md:space-x-8">
+                            <!-- Macierz ciepła -->
+                            <div class="w-full md:w-1/2">
+                                <h3 class="text-lg font-medium mb-2 text-white">Macierz ciepła alokacji</h3>
+                                <canvas id="heatmapChart" class="w-full h-96"></canvas>
+                            </div>
+                            <!-- Graf sieciowy -->
+                            <div class="w-full md:w-1/2">
+                                <h3 class="text-lg font-medium mb-2 text-white">Graf sieciowy przepływów</h3>
+                                <canvas id="networkChart" class="w-full h-96"></canvas>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
 
             <!-- Zakładki (stały dock na dole) -->
             <div class="mt-8 flex justify-center">
-                <div class="dock flex justify-center space-x-4 bg-gray-700 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
+                <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
                     <button @click="tab = 'input'" 
                             :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
@@ -335,53 +352,5 @@
             </div>
         </div>
     </div>
-
-    <!-- Dodaj Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            let chartInstance = null;
-            const ctx = document.getElementById('solutionChart').getContext('2d');
-            
-            Alpine.effect(() => {
-                const xData = Alpine.store('x-data');
-                if (xData.tab === 'chart' && xData.resultData) {
-                    const data = xData.resultData;
-                    
-                    // Zniszcz poprzedni wykres, jeśli istnieje
-                    if (chartInstance) {
-                        chartInstance.destroy();
-                    }
-
-                    // Tworzenie nowego wykresu
-                    chartInstance = new Chart(ctx, {
-                        type: 'bar',
-                        data: {
-                            labels: data.allocation.flatMap((row, i) => row.map((_, j) => `D${i+1}-O${j+1}`)),
-                            datasets: [{
-                                label: 'Alokacja',
-                                data: data.allocation.flat(),
-                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                                borderColor: 'rgba(75, 192, 192, 1)',
-                                borderWidth: 1
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                y: { beginAtZero: true }
-                            },
-                            plugins: {
-                                legend: {
-                                    labels: {
-                                        color: '#ffffff'
-                                    }
-                                }
-                            }
-                        }
-                    });
-                }
-            });
-        });
-    </script>
 </body>
 </html>
