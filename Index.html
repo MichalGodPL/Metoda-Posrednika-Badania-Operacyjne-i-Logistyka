@@ -5,35 +5,70 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Metoda Pośrednika - Logistyka</title>
     
-    <!-- Import Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Import Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
-
-    <!-- Import Poppins font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
-    <!-- Import Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <!-- Twój plik CSS (jeśli istnieje) -->
     <link rel="stylesheet" href="Style.css">
 
-    <!-- Style dla animacji i tabel -->
     <style>
         @keyframes slideIn {
             0% { opacity: 0; transform: translateY(-20px); }
             100% { opacity: 1; transform: translateY(0); }
         }
+        @keyframes glowPulse {
+            0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+            50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(96, 165, 250, 0.5); }
+            100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+        }
         .animate-slide-in { animation: slideIn 1s ease-out forwards; }
         .table-cell { width: 80px; height: 60px; text-align: center; }
         .table-header { width: 80px; height: 40px; text-align: center; }
-        .chart-image { max-width: 100%; height: auto; }
+        .chart-container {
+            width: 500px;
+            height: 500px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chart-image { 
+            width: 100%;
+            height: 100%;
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+            object-fit: contain;
+        }
+        .chart-image:hover { transform: scale(1.05); }
+        .input-field { transition: all 0.3s ease; }
+        .input-field:focus { transform: scale(1.02); border-color: #60a5fa; }
+        .title-dock { 
+            max-width: 600px; 
+            padding: 1rem 2rem; 
+            transition: all 0.3s ease; 
+        }
+        .title-dock:hover { 
+            transform: translateY(-5px) scale(1.05); 
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+        .title-dock:hover h1 { 
+            animation: glowPulse 1.5s infinite; 
+        }
+        .info-tile { transition: all 0.3s ease; }
+        .info-tile:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); }
+        .section-title {
+            background: linear-gradient(90deg, rgba(96, 165, 250, 0.2), rgba(255, 255, 255, 0.1));
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            padding: 0.5rem 2rem;
+            display: inline-block;
+            animation: glowPulse 2s infinite, slideIn 1s ease-out forwards;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
-<body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center justify-center">
-    <div class="container mx-auto p-6 max-w-5xl flex-grow flex flex-col"
+<body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center">
+    <div class="container mx-auto p-6 max-w-5xl flex flex-col flex-grow"
          x-data="{ 
             tab: 'input',
             rows: '',
@@ -52,7 +87,6 @@
                     console.log('Otrzymano odpowiedź z backendu:', response);
                     this.resultData = response;
                     this.tab = 'results';
-                    // Generowanie wykresów po obliczeniach
                     let chartResponse = await window.pywebview.api.generate_chart_images(JSON.stringify(this.costs), JSON.stringify(this.resultData));
                     console.log('Otrzymano wykresy:', chartResponse);
                     this.heatmapImage = 'data:image/png;base64,' + chartResponse.heatmap_image;
@@ -64,29 +98,42 @@
             }
          }"
          x-init="costs = []; supply = []; demand = [];">
-        <h1 class="text-4xl font-bold text-center mb-8 text-white tracking-tight">
-            <i class="fas fa-truck mr-2"></i> Metoda Pośrednika w Logistyce
-        </h1>
+        <div class="flex justify-center mb-8 pt-4">
+            <div class="title-dock bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center">
+                <h1 class="text-3xl font-bold text-white tracking-tight">
+                    <i class="fas fa-truck mr-2"></i> Metoda Pośrednika w Logistyce
+                </h1>
+            </div>
+        </div>
         
-        <div class="flex flex-col flex-grow justify-between">
-            <div class="flex-grow min-h-[600px] flex flex-col">
-                <!-- Sekcja wprowadzania danych -->
+        <div class="flex flex-col flex-grow justify-between mt-[-1rem]">
+            <div class="flex-grow min-h-[600px] flex flex-col pt-2">
                 <div x-show="tab === 'input'" 
                      x-transition:enter="transition ease-out duration-500" 
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-center justify-center">
+                     class="flex-grow flex items-start justify-center">
                     <div class="w-full max-w-4xl">
+                        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6 mb-6">
+                            <div class="info-tile bg-gray-800 bg-opacity-50 p-4 rounded-lg shadow-md w-full md:w-1/2">
+                                <h3 class="text-lg font-medium text-white mb-2">O metodzie</h3>
+                                <p class="text-sm text-gray-400">Metoda Pośrednika (ang. Stepping Stone Method) to algorytm optymalizacji w problemach transportowych. Pozwala znaleźć optymalne rozwiązanie minimalizujące koszty transportu pomiędzy dostawcami a odbiorcami.</p>
+                            </div>
+                            <div class="info-tile bg-gray-800 bg-opacity-50 p-4 rounded-lg shadow-md w-full md:w-1/2">
+                                <h3 class="text-lg font-medium text-white mb-2">Cel metody</h3>
+                                <p class="text-sm text-gray-400">Celem jest zoptymalizowanie alokacji zasobów tak, aby suma kosztów transportu była jak najmniejsza, przy jednoczesnym spełnieniu wymagań podaży i popytu.</p>
+                            </div>
+                        </div>
                         <h2 class="text-2xl font-semibold mb-6 text-white text-center">Wprowadź dane problemu transportowego</h2>
                         <div x-show="!matrixGenerated" class="mb-6">
                             <label class="block mb-3 text-lg text-center">Określ Rozmiar Macierzy Kosztów:</label>
                             <div class="flex space-x-4 items-center justify-center">
                                 <input x-model.number="rows" type="number" min="1" 
-                                       class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                       class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                        placeholder="Dostawcy">
                                 <span class="text-2xl">×</span>
                                 <input x-model.number="cols" type="number" min="1" 
-                                       class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                       class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                        placeholder="Odbiorcy">
                             </div>
                             <div class="flex justify-center mt-4">
@@ -116,13 +163,13 @@
                                                 <template x-for="j in cols" :key="j">
                                                     <div class="p-2">
                                                         <input type="number" x-model.number="costs[i-1][j-1]" 
-                                                               class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                               class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                                                placeholder="0">
                                                     </div>
                                                 </template>
                                                 <div class="p-2">
                                                     <input type="number" x-model.number="supply[i-1]" 
-                                                           class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                           class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                                            placeholder="0">
                                                 </div>
                                             </div>
@@ -131,7 +178,7 @@
                                         <template x-for="j in cols" :key="j">
                                             <div class="p-2">
                                                 <input type="number" x-model.number="demand[j-1]" 
-                                                       class="w-full p-2 bg-gray-800 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-blue-500 transition-all duration-300" 
+                                                       class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                                        placeholder="0">
                                             </div>
                                         </template>
@@ -153,20 +200,19 @@
                     </div>
                 </div>
 
-                <!-- Sekcja wyników -->
                 <div x-show="tab === 'results'" 
                      x-transition:enter="transition ease-out duration-500" 
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-center justify-center">
+                     class="flex-grow flex items-start justify-center">
                     <div class="text-center w-full max-w-4xl">
-                        <h2 class="text-2xl font-semibold mb-8 text-white">Wyniki obliczeń</h2>
+                        <h2 class="text-2xl font-semibold mb-8 text-white section-title">Wyniki obliczeń</h2>
                         <template x-if="resultData">
                             <div class="text-left">
                                 <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
                                     <p class="text-lg font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400 text-xl" x-text="resultData.total_cost"></span></p>
                                 </div>
-                                <div class="flex justify-center space-x-8 mb-8">
+                                <div class="flex justify-center space-x-8 mb-12">
                                     <div>
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Macierz kosztów:</h3>
                                         <div class="inline-block">
@@ -257,7 +303,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                <div class="mb-8 mt-4 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
                                     <p class="text-lg font-medium text-white" x-text="'Potencjały: u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></p>
                                 </div>
                                 <div class="mb-8 p-4 bg-gray-800 rounded-lg border-2 border-white shadow-lg">
@@ -268,23 +314,18 @@
                     </div>
                 </div>
 
-                <!-- Sekcja wykresu -->
                 <div x-show="tab === 'chart'" 
                      x-transition:enter="transition ease-out duration-500" 
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-center justify-center">
-                    <div class="text-center w-full max-w-4xl">
-                        <h2 class="text-2xl font-semibold mb-6 text-white">Wykresy rozwiązania</h2>
-                        <div class="flex flex-col md:flex-row justify-center space-y-8 md:space-y-0 md:space-x-8">
-                            <!-- Macierz ciepła -->
-                            <div class="w-full md:w-1/2">
-                                <h3 class="text-lg font-medium mb-2 text-white">Macierz ciepła alokacji</h3>
+                     class="flex-grow flex items-start justify-center">
+                    <div class="text-center w-full max-w-4xl pt-2">
+                        <h2 class="text-2xl font-semibold mb-8 text-white section-title">Wykresy rozwiązania</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-52 justify-items-center">
+                            <div class="chart-container">
                                 <img x-bind:src="heatmapImage" class="chart-image" alt="Macierz ciepła" x-show="heatmapImage">
                             </div>
-                            <!-- Graf sieciowy -->
-                            <div class="w-full md:w-1/2">
-                                <h3 class="text-lg font-medium mb-2 text-white">Graf sieciowy przepływów</h3>
+                            <div class="chart-container">
                                 <img x-bind:src="networkImage" class="chart-image" alt="Graf sieciowy" x-show="networkImage">
                             </div>
                         </div>
@@ -292,7 +333,6 @@
                 </div>
             </div>
 
-            <!-- Zakładki -->
             <div class="mt-8 flex justify-center">
                 <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
                     <button @click="tab = 'input'" 
