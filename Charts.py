@@ -1,3 +1,5 @@
+import matplotlib
+matplotlib.use('Agg')  # Przełącz na backend nieinteraktywny
 import matplotlib.pyplot as plt
 import numpy as np
 import networkx as nx
@@ -73,14 +75,12 @@ def generate_charts(allocation, costs):
 
     return heatmap_image, network_image
 
-# Funkcja do wywołania z API
 def generate_chart_images(costs, steps):
     allocation = steps['allocation']
     heatmap_image, network_image = generate_charts(allocation, costs)
     return {"heatmap_image": heatmap_image, "network_image": network_image}
 
 if __name__ == "__main__":
-    # Testowe dane
     from Logika import logika
     costs = [[4, 6], [5, 7]]
     supply = [50, 60]
