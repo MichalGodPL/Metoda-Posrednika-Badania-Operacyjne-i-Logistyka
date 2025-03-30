@@ -11,12 +11,6 @@
     <!-- Import Alpine.js -->
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 
-    <!-- Import Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
-    <!-- Import Charts.js -->
-    <script src="Charts.js"></script>
-
     <!-- Import Poppins font -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
@@ -29,29 +23,13 @@
     <!-- Style dla animacji i tabel -->
     <style>
         @keyframes slideIn {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            0% { opacity: 0; transform: translateY(-20px); }
+            100% { opacity: 1; transform: translateY(0); }
         }
-        .animate-slide-in {
-            animation: slideIn 1s ease-out forwards;
-        }
-        /* Ustalamy stałą szerokość i wysokość komórek */
-        .table-cell {
-            width: 80px;
-            height: 60px;
-            text-align: center;
-        }
-        .table-header {
-            width: 80px;
-            height: 40px;
-            text-align: center;
-        }
+        .animate-slide-in { animation: slideIn 1s ease-out forwards; }
+        .table-cell { width: 80px; height: 60px; text-align: center; }
+        .table-header { width: 80px; height: 40px; text-align: center; }
+        .chart-image { max-width: 100%; height: auto; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center justify-center">
@@ -65,15 +43,22 @@
             demand: [],
             matrixGenerated: false,
             resultData: null,
+            heatmapImage: '',
+            networkImage: '',
             async calculate() {
                 try {
                     console.log('Rozpoczynam obliczenia...', { costs: this.costs, supply: this.supply, demand: this.demand });
-                    let response = await window.pywebview.api.calculate(this.costs, this.supply, this.demand);
+                    let response = await window.pywebview.api.calculate(JSON.stringify(this.costs), JSON.stringify(this.supply), JSON.stringify(this.demand));
                     console.log('Otrzymano odpowiedź z backendu:', response);
                     this.resultData = response;
                     this.tab = 'results';
+                    // Generowanie wykresów po obliczeniach
+                    let chartResponse = await window.pywebview.api.generate_chart_images(JSON.stringify(this.costs), JSON.stringify(this.resultData));
+                    console.log('Otrzymano wykresy:', chartResponse);
+                    this.heatmapImage = 'data:image/png;base64,' + chartResponse.heatmap_image;
+                    this.networkImage = 'data:image/png;base64,' + chartResponse.network_image;
                 } catch (e) {
-                    console.error('Błąd podczas obliczeń:', e);
+                    console.error('Błąd podczas obliczeń lub generowania wykresów:', e);
                     alert('Błąd: ' + e);
                 }
             }
@@ -84,7 +69,6 @@
         </h1>
         
         <div class="flex flex-col flex-grow justify-between">
-            <!-- Kontener zakładek o stałej wysokości -->
             <div class="flex-grow min-h-[600px] flex flex-col">
                 <!-- Sekcja wprowadzania danych -->
                 <div x-show="tab === 'input'" 
@@ -94,8 +78,6 @@
                      class="flex-grow flex items-center justify-center">
                     <div class="w-full max-w-4xl">
                         <h2 class="text-2xl font-semibold mb-6 text-white text-center">Wprowadź dane problemu transportowego</h2>
-                        
-                        <!-- Kreator rozmiaru macierzy -->
                         <div x-show="!matrixGenerated" class="mb-6">
                             <label class="block mb-3 text-lg text-center">Określ Rozmiar Macierzy Kosztów:</label>
                             <div class="flex space-x-4 items-center justify-center">
@@ -114,8 +96,6 @@
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Generowanie macierzy kosztów -->
                         <div x-show="matrixGenerated" 
                              x-transition:enter="transition ease-out duration-500" 
                              x-transition:enter-start="opacity-0 transform scale-95" 
@@ -125,14 +105,11 @@
                                 <h3 class="text-lg font-medium mb-4 text-white text-center">Macierz kosztów:</h3>
                                 <div class="overflow-x-auto">
                                     <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 2}, 80px);`">
-                                        <!-- Nagłówki odbiorców -->
                                         <div class="p-2"></div>
                                         <template x-for="j in cols" :key="j">
                                             <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
                                         </template>
                                         <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
-
-                                        <!-- Wiersze macierzy kosztów -->
                                         <template x-for="i in rows" :key="i">
                                             <div style="display: contents;">
                                                 <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
@@ -150,8 +127,6 @@
                                                 </div>
                                             </div>
                                         </template>
-
-                                        <!-- Wiersz popytu -->
                                         <div class="text-center font-medium text-blue-400 p-2">Popyt</div>
                                         <template x-for="j in cols" :key="j">
                                             <div class="p-2">
@@ -163,7 +138,6 @@
                                         <div class="p-2"></div>
                                     </div>
                                 </div>
-
                                 <div class="flex justify-between mt-6">
                                     <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
                                             class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
@@ -189,14 +163,10 @@
                         <h2 class="text-2xl font-semibold mb-8 text-white">Wyniki obliczeń</h2>
                         <template x-if="resultData">
                             <div class="text-left">
-                                <!-- Całkowity koszt -->
                                 <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
                                     <p class="text-lg font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400 text-xl" x-text="resultData.total_cost"></span></p>
                                 </div>
-
-                                <!-- Tabele obok siebie -->
                                 <div class="flex justify-center space-x-8 mb-8">
-                                    <!-- Macierz kosztów -->
                                     <div>
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Macierz kosztów:</h3>
                                         <div class="inline-block">
@@ -222,8 +192,6 @@
                                             </table>
                                         </div>
                                     </div>
-
-                                    <!-- Początkowa alokacja -->
                                     <div>
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.initial_allocation[0].length * 80 + 80}px`">Początkowa alokacja:</h3>
                                         <div class="inline-block">
@@ -256,8 +224,6 @@
                                             </table>
                                         </div>
                                     </div>
-
-                                    <!-- Końcowa alokacja -->
                                     <div>
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Końcowa alokacja:</h3>
                                         <div class="inline-block">
@@ -291,13 +257,9 @@
                                         </div>
                                     </div>
                                 </div>
-
-                                <!-- Potencjały -->
                                 <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
                                     <p class="text-lg font-medium text-white" x-text="'Potencjały: u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></p>
                                 </div>
-
-                                <!-- Informacja o iteracjach -->
                                 <div class="mb-8 p-4 bg-gray-800 rounded-lg border-2 border-white shadow-lg">
                                     <p class="text-lg font-medium text-white" x-text="resultData.iterations === 0 ? 'Brak możliwości poprawy po 0 iteracjach' : 'Możliwość poprawy po ' + resultData.iterations + ' iteracjach'"></p>
                                 </div>
@@ -318,19 +280,19 @@
                             <!-- Macierz ciepła -->
                             <div class="w-full md:w-1/2">
                                 <h3 class="text-lg font-medium mb-2 text-white">Macierz ciepła alokacji</h3>
-                                <canvas id="heatmapChart" class="w-full h-96"></canvas>
+                                <img x-bind:src="heatmapImage" class="chart-image" alt="Macierz ciepła" x-show="heatmapImage">
                             </div>
                             <!-- Graf sieciowy -->
                             <div class="w-full md:w-1/2">
                                 <h3 class="text-lg font-medium mb-2 text-white">Graf sieciowy przepływów</h3>
-                                <canvas id="networkChart" class="w-full h-96"></canvas>
+                                <img x-bind:src="networkImage" class="chart-image" alt="Graf sieciowy" x-show="networkImage">
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Zakładki (stały dock na dole) -->
+            <!-- Zakładki -->
             <div class="mt-8 flex justify-center">
                 <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
                     <button @click="tab = 'input'" 
