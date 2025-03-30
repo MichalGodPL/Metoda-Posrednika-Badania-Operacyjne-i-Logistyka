@@ -63,3 +63,9 @@ This application demonstrates the use of the Intermediary Method in transportati
 - Calculating optimal resource allocation via the Intermediary Method
 - Generating plots (heatmap, flow network)
 - Summarizing results, including total cost
+
+## Screenshots
+![](1.png)
+![](2.png)
+![](3.png)
+![](4.png)

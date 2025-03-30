@@ -21,6 +21,10 @@
             50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(96, 165, 250, 0.5); }
             100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
         }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
         .animate-slide-in { animation: slideIn 1s ease-out forwards; }
         .table-cell { width: 80px; height: 60px; text-align: center; }
         .table-header { width: 80px; height: 40px; text-align: center; }
@@ -56,6 +60,7 @@
         }
         .info-tile { transition: all 0.3s ease; }
         .info-tile:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); }
+        .info-tile p { text-align: justify; }
         .section-title {
             background: linear-gradient(90deg, rgba(96, 165, 250, 0.2), rgba(255, 255, 255, 0.1));
             border: 2px solid rgba(255, 255, 255, 0.3);
@@ -65,6 +70,25 @@
             animation: glowPulse 2s infinite, slideIn 1s ease-out forwards;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
         }
+        .loading-dots {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .dot {
+            width: 12px;
+            height: 12px;
+            background-color: #60a5fa;
+            border-radius: 50%;
+            margin: 0 6px;
+            animation: bounce 1.2s infinite ease-in-out;
+        }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center">
@@ -107,7 +131,7 @@
         </div>
         
         <div class="flex flex-col flex-grow justify-between mt-[-1rem]">
-            <div class="flex-grow min-h-[600px] flex flex-col pt-2">
+            <div class="flex-grow min-h-[600px] flex flex-col pt-2 relative">
                 <div x-show="tab === 'input'" 
                      x-transition:enter="transition ease-out duration-500" 
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
@@ -204,9 +228,16 @@
                      x-transition:enter="transition ease-out duration-500" 
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-start justify-center">
+                     class="flex-grow flex items-start justify-center relative">
                     <div class="text-center w-full max-w-4xl">
                         <h2 class="text-2xl font-semibold mb-8 text-white section-title">Wyniki obliczeń</h2>
+                        <template x-if="!resultData">
+                            <div class="loading-dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                            </div>
+                        </template>
                         <template x-if="resultData">
                             <div class="text-left">
                                 <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
@@ -318,17 +349,26 @@
                      x-transition:enter="transition ease-out duration-500" 
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
-                     class="flex-grow flex items-start justify-center">
+                     class="flex-grow flex items-start justify-center relative">
                     <div class="text-center w-full max-w-4xl pt-2">
                         <h2 class="text-2xl font-semibold mb-8 text-white section-title">Wykresy rozwiązania</h2>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-52 justify-items-center">
-                            <div class="chart-container">
-                                <img x-bind:src="heatmapImage" class="chart-image" alt="Macierz ciepła" x-show="heatmapImage">
+                        <template x-if="!resultData">
+                            <div class="loading-dots">
+                                <div class="dot"></div>
+                                <div class="dot"></div>
+                                <div class="dot"></div>
                             </div>
-                            <div class="chart-container">
-                                <img x-bind:src="networkImage" class="chart-image" alt="Graf sieciowy" x-show="networkImage">
+                        </template>
+                        <template x-if="resultData">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-52 justify-items-center">
+                                <div class="chart-container">
+                                    <img x-bind:src="heatmapImage" class="chart-image" alt="Macierz ciepła" x-show="heatmapImage">
+                                </div>
+                                <div class="chart-container">
+                                    <img x-bind:src="networkImage" class="chart-image" alt="Graf sieciowy" x-show="networkImage">
+                                </div>
                             </div>
-                        </div>
+                        </template>
                     </div>
                 </div>
             </div>
