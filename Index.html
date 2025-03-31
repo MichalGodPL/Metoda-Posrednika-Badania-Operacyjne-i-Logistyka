@@ -90,7 +90,7 @@
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
         .result-box {
-            width: 250px; /* Zwiększona szerokość dla wszystkich obszarów */
+            width: 250px;
             height: 60px;
             padding: 0.5rem 1rem;
             background-color: #2d3748;
@@ -103,7 +103,7 @@
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
         .result-box-potentials {
-            width: 350px; /* Troszkę dłuższy dla Potencjałów */
+            width: 350px;
             height: 60px;
             padding: 0.5rem 1rem;
             background-color: #2d3748;
@@ -115,7 +115,6 @@
             text-align: center;
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
         }
-        /* Stylizacja scrollbarów */
         ::-webkit-scrollbar {
             width: 10px;
             height: 10px;
@@ -133,7 +132,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
         }
-        /* Dla Firefox */
         * {
             scrollbar-width: thin;
             scrollbar-color: #60a5fa #1f2937;
@@ -204,7 +202,7 @@
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
                      class="flex-grow flex items-start justify-center">
                     <div class="w-full max-w-4xl">
-                        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6 mb-6">
+                        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-yiatrics=0 md:space-x-6 mb-6">
                             <div class="info-tile bg-gray-800 bg-opacity-50 p-4 rounded-lg shadow-md w-full md:w-1/2">
                                 <h3 class="text-lg font-medium text-white mb-2">O metodzie</h3>
                                 <p class="text-sm text-gray-400">Metoda Pośrednika (ang. Stepping Stone Method) to algorytm optymalizacji w problemach transportowych. Pozwala znaleźć optymalne rozwiązanie minimalizujące koszty transportu pomiędzy dostawcami a odbiorcami.</p>
@@ -227,7 +225,7 @@
                                        placeholder="Odbiorcy">
                             </div>
                             <div class="flex justify-center mt-4">
-                                <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); purchasePrices = Array(rows).fill(0); sellingPrices = Array(rows).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+                                <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); purchasePrices = Array(rows).fill(0); sellingPrices = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
                                         class="generate-btn p-3 rounded-full transition-all duration-300">
                                     <i class="fas fa-plus text-2xl text-gray-400"></i>
                                 </button>
@@ -247,7 +245,7 @@
                                             <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
                                         </template>
                                         <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
-                                        <div class="text-center font-medium text-blue-400 p-2">Cena sprzedaży</div>
+                                        <div class="text-center font-medium text-blue-400 p-2">Cena zakupu</div>
                                         <template x-for="i in rows" :key="i">
                                             <div style="display: contents;">
                                                 <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
@@ -264,7 +262,7 @@
                                                            placeholder="0">
                                                 </div>
                                                 <div class="p-2">
-                                                    <input type="number" x-model.number="sellingPrices[i-1]" 
+                                                    <input type="number" x-model.number="purchasePrices[i-1]" 
                                                            class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                                            placeholder="0">
                                                 </div>
@@ -280,10 +278,10 @@
                                         </template>
                                         <div class="p-2"></div>
                                         <div class="p-2"></div>
-                                        <div class="text-center font-medium text-blue-400 p-2">Cena zakupu</div>
-                                        <template x-for="i in rows" :key="i">
+                                        <div class="text-center font-medium text-blue-400 p-2">Cena sprzedaży</div>
+                                        <template x-for="j in cols" :key="j">
                                             <div class="p-2">
-                                                <input type="number" x-model.number="purchasePrices[i-1]" 
+                                                <input type="number" x-model.number="sellingPrices[j-1]" 
                                                        class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                                        placeholder="0">
                                             </div>
@@ -313,10 +311,9 @@
                         </template>
                         <template x-if="resultData">
                             <div class="text-left">
-                                <!-- Pierwsze trzy obszary: Koszt transportu, Koszt zakupu, Całkowity koszt -->
                                 <div class="flex justify-center space-x-4 mb-8">
                                     <div class="result-box">
-                                        <p class="text-sm font-medium text-white">Koszt transportu: <span class="font-bold text-green-400" x-text="resultData.transport_cost.toFixed(2)"></span></p>
+                                        <p class="text-sm font-medium text-white">Koszt transportu: <span class="font-bold text-green-400"имсяx-text="resultData.transport_cost.toFixed(2)"></span></p>
                                     </div>
                                     <div class="result-box">
                                         <p class="text-sm font-medium text-white">Koszt zakupu: <span class="font-bold text-green-400" x-text="resultData.purchase_cost.toFixed(2)"></span></p>
@@ -325,7 +322,6 @@
                                         <p class="text-sm font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400" x-text="resultData.total_cost.toFixed(2)"></span></p>
                                     </div>
                                 </div>
-                                <!-- Tabele -->
                                 <div class="flex justify-center space-x-8 mb-4">
                                     <div>
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Macierz kosztów:</h3>
@@ -417,7 +413,6 @@
                                         </div>
                                     </div>
                                 </div>
-                                <!-- Drugie trzy obszary: Potencjały, Przychód, Zysk -->
                                 <div class="flex justify-center space-x-4 mb-8">
                                     <div class="result-box-potentials">
                                         <p class="text-sm font-medium text-white">Potencjały: <span class="font-bold text-green-400" x-text="'u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></span></p>
@@ -466,7 +461,6 @@
             </div>
 
             <div class="mt-8 flex justify-center relative">
-                <!-- Główny dock z zakładkami - bez zmian -->
                 <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6 left-1/2 transform -translate-x-1/2">
                     <button @click="tab = 'input'" 
                             :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
@@ -484,7 +478,6 @@
                         <i class="fas fa-chart-line text-2xl"></i>
                     </button>
                 </div>
-                <!-- Nowy, mniejszy dock na prawo -->
                 <div x-show="tab === 'input' && matrixGenerated" 
                      class="action-dock flex justify-center space-x-2 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6 left-1/2 transform translate-x-[calc(50%+120px)]">
                     <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];" 
