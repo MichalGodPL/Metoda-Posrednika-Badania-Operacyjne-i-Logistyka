@@ -32,6 +32,7 @@ class API:
         selling_prices = json.loads(selling_prices)
         
         # Wywołanie logiki obliczeń z Logika.py
+        
         allocation, total_cost, steps = logika(costs, supply, demand, purchase_prices, selling_prices)
         
         # Zwrócenie wyników obliczeń
