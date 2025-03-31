@@ -1,14 +1,44 @@
 def logika(cost_matrix, supply, demand, purchase_prices, selling_prices):
     rows, cols = len(cost_matrix), len(cost_matrix[0])
-    allocation = [[0] * cols for _ in range(rows)]
     supply_left = supply.copy()
     demand_left = demand.copy()
 
     # Sprawdzenie równowagi podaży i popytu
     total_supply = sum(supply)
     total_demand = sum(demand)
+
+    # Kopie oryginalnych danych
+    original_cost_matrix = [row[:] for row in cost_matrix]
+    original_supply = supply.copy()
+    original_demand = demand.copy()
+    original_purchase_prices = purchase_prices.copy()
+    original_selling_prices = selling_prices.copy()
+
+    # Obsługa niezrównoważonego problemu
+    if total_supply > total_demand:
+        # Dodajemy fikcyjnego odbiorcę
+        print(f"Suma podaży ({total_supply}) jest większa niż suma popytu ({total_demand}). Dodajemy fikcyjnego odbiorcę.")
+        demand_left.append(total_supply - total_demand)
+        for i in range(rows):
+            cost_matrix[i].append(0)  # Koszt transportu do fikcyjnego odbiorcy = 0
+        selling_prices.append(0)  # Cena sprzedaży dla fikcyjnego odbiorcy = 0
+        cols += 1
+    elif total_demand > total_supply:
+        # Dodajemy fikcyjnego dostawcę
+        print(f"Suma popytu ({total_demand}) jest większa niż suma podaży ({total_supply}). Dodajemy fikcyjnego dostawcę.")
+        supply_left.append(total_demand - total_supply)
+        cost_matrix.append([0] * cols)  # Koszt transportu od fikcyjnego dostawcy = 0
+        purchase_prices.append(0)  # Cena zakupu dla fikcyjnego dostawcy = 0
+        rows += 1
+
+    # Po modyfikacji suma podaży i popytu powinna być równa
+    total_supply = sum(supply_left)
+    total_demand = sum(demand_left)
     if total_supply != total_demand:
-        raise ValueError(f"Suma podaży ({total_supply}) musi równać się sumie popytu ({total_demand})!")
+        raise ValueError(f"Po modyfikacji suma podaży ({total_supply}) musi równać się sumie popytu ({total_demand})!")
+
+    # Inicjalizacja macierzy alokacji z nowymi wymiarami
+    allocation = [[0] * cols for _ in range(rows)]
 
     # Metoda minimalnego kosztu
     while any(supply_left) and any(demand_left):
@@ -152,9 +182,9 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices):
     # Obliczanie kosztu zakupu
     # Koszt zakupu = suma (ilość dostarczona od dostawcy i * cena zakupu dla dostawcy i)
     purchase_cost = 0
-    for i in range(rows):
+    for i in range(len(original_supply)):
         total_delivered_from_supplier = sum(allocation[i][j] for j in range(cols))
-        purchase_cost += total_delivered_from_supplier * purchase_prices[i]
+        purchase_cost += total_delivered_from_supplier * original_purchase_prices[i]
 
     # Całkowity koszt = koszt transportu + koszt zakupu
     total_cost = transport_cost + purchase_cost
@@ -162,27 +192,30 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices):
     # Obliczanie przychodu (income)
     # Przychód = suma (ilość dostarczona do klienta j * cena sprzedaży dla klienta j)
     income = 0
-    for j in range(cols):
+    for j in range(len(original_demand)):
         total_delivered_to_customer = sum(allocation[i][j] for i in range(rows))
-        income += total_delivered_to_customer * selling_prices[j]
+        income += total_delivered_to_customer * original_selling_prices[j]
 
     # Obliczanie zysku (profit)
     profit = income - total_cost
 
+    # Przygotowanie alokacji do zwrotu (usuwamy fikcyjnego dostawcę/odbiorcę)
+    final_allocation = [row[:len(original_demand)] for row in allocation[:len(original_supply)]]
+
     steps = {
-        "initial_allocation": initial_allocation,
-        "allocation": allocation,
+        "initial_allocation": [row[:len(original_demand)] for row in initial_allocation[:len(original_supply)]],
+        "allocation": final_allocation,
         "total_cost": total_cost,
-        "transport_cost": transport_cost,  # Dodajemy dla informacji
-        "purchase_cost": purchase_cost,    # Dodajemy dla informacji
+        "transport_cost": transport_cost,
+        "purchase_cost": purchase_cost,
         "income": income,
         "profit": profit,
-        "potentials": {"u": u, "v": v},
+        "potentials": {"u": u[:len(original_supply)], "v": v[:len(original_demand)]},
         "iterations": iterations,
         "improvement_possible": iterations > 0
     }
     
-    return allocation, total_cost, steps
+    return final_allocation, total_cost, steps
 
 # Interfejs pywebview
 import json
@@ -195,10 +228,10 @@ def calculate(costs, supply, demand, purchase_prices, selling_prices):
 if __name__ == "__main__":
     # Testowy przykład
     costs = [[4, 6], [5, 7]]
-    supply = [50, 60]
-    demand = [60, 50]
-    purchase_prices = [2, 3]  # Przykładowe ceny zakupu dla dostawców
-    selling_prices = [12, 13]  # Przykładowe ceny sprzedaży
+    supply = [30, 25]
+    demand = [30, 5]
+    purchase_prices = [6, 7]
+    selling_prices = [12, 13]
     allocation, cost, steps = logika(costs, supply, demand, purchase_prices, selling_prices)
     print(f"Rozwiązanie: {allocation}")
     print(f"Całkowity koszt: {cost}")
@@ -216,5 +249,4 @@ if __name__ == "__main__":
     })()
 
     webview.create_window("Metoda Pośrednika", "Index.html", js_api=api)
-
     webview.start()
