@@ -292,16 +292,6 @@
                                         <div class="p-2"></div>
                                     </div>
                                 </div>
-                                <div class="flex justify-between mt-6">
-                                    <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];" 
-                                            class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
-                                        <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
-                                    </button>
-                                    <button @click="calculate()"
-                                            class="p-3 rounded-full bg-gray-800 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
-                                        <i class="fas fa-table text-xl"></i>
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -475,8 +465,9 @@
                 </div>
             </div>
 
-            <div class="mt-8 flex justify-center">
-                <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6">
+            <div class="mt-8 flex justify-center relative">
+                <!-- Główny dock z zakładkami - bez zmian -->
+                <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6 left-1/2 transform -translate-x-1/2">
                     <button @click="tab = 'input'" 
                             :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
@@ -491,6 +482,18 @@
                             :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
                         <i class="fas fa-chart-line text-2xl"></i>
+                    </button>
+                </div>
+                <!-- Nowy, mniejszy dock na prawo -->
+                <div x-show="tab === 'input' && matrixGenerated" 
+                     class="action-dock flex justify-center space-x-2 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6 left-1/2 transform translate-x-[calc(50%+120px)]">
+                    <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];" 
+                            class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
+                        <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
+                    </button>
+                    <button @click="calculate()"
+                            class="p-3 rounded-full bg-gray-800 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+                        <i class="fas fa-table text-xl"></i>
                     </button>
                 </div>
             </div>
