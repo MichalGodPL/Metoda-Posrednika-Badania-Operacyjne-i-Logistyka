@@ -1,7 +1,11 @@
 import webview
+
 from Logika import logika
+
 from Charts import generate_chart_images
+
 import json
+
 
 class App:
     def __init__(self):
@@ -19,19 +23,25 @@ class App:
         webview.start()
 
 class API:
-    def calculate(self, costs, supply, demand):
-        # Parsowanie danych z JSON, bo frontend przesyła je jako stringi ez
+    def calculate(self, costs, supply, demand, purchase_prices, selling_prices):
+        # Parsowanie danych z JSON, bo frontend przesyła je jako stringi
         costs = json.loads(costs)
         supply = json.loads(supply)
         demand = json.loads(demand)
+        purchase_prices = json.loads(purchase_prices)
+        selling_prices = json.loads(selling_prices)
         
         # Wywołanie logiki obliczeń z Logika.py
-        allocation, total_cost, steps = logika(costs, supply, demand)
+        allocation, total_cost, steps = logika(costs, supply, demand, purchase_prices, selling_prices)
         
         # Zwrócenie wyników obliczeń
         return {
             "allocation": steps["allocation"],
             "total_cost": total_cost,
+            "transport_cost": steps["transport_cost"],
+            "purchase_cost": steps["purchase_cost"],
+            "income": steps["income"],
+            "profit": steps["profit"],
             "initial_allocation": steps["initial_allocation"],
             "potentials": steps["potentials"],
             "iterations": steps["iterations"],

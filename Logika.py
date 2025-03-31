@@ -1,4 +1,4 @@
-def logika(cost_matrix, supply, demand):
+def logika(cost_matrix, supply, demand, purchase_prices, selling_prices):
     rows, cols = len(cost_matrix), len(cost_matrix[0])
     allocation = [[0] * cols for _ in range(rows)]
     supply_left = supply.copy()
@@ -146,11 +146,37 @@ def logika(cost_matrix, supply, demand):
     if iterations >= max_iterations:
         print("Osiągnięto maksymalną liczbę iteracji.")
 
-    total_cost = sum(cost_matrix[i][j] * allocation[i][j] for i in range(rows) for j in range(cols))
+    # Obliczanie kosztu transportu
+    transport_cost = sum(cost_matrix[i][j] * allocation[i][j] for i in range(rows) for j in range(cols))
+
+    # Obliczanie kosztu zakupu
+    # Koszt zakupu = suma (ilość dostarczona od dostawcy i * cena zakupu dla dostawcy i)
+    purchase_cost = 0
+    for i in range(rows):
+        total_delivered_from_supplier = sum(allocation[i][j] for j in range(cols))
+        purchase_cost += total_delivered_from_supplier * purchase_prices[i]
+
+    # Całkowity koszt = koszt transportu + koszt zakupu
+    total_cost = transport_cost + purchase_cost
+
+    # Obliczanie przychodu (income)
+    # Przychód = suma (ilość dostarczona do klienta j * cena sprzedaży dla klienta j)
+    income = 0
+    for j in range(cols):
+        total_delivered_to_customer = sum(allocation[i][j] for i in range(rows))
+        income += total_delivered_to_customer * selling_prices[j]
+
+    # Obliczanie zysku (profit)
+    profit = income - total_cost
+
     steps = {
         "initial_allocation": initial_allocation,
         "allocation": allocation,
         "total_cost": total_cost,
+        "transport_cost": transport_cost,  # Dodajemy dla informacji
+        "purchase_cost": purchase_cost,    # Dodajemy dla informacji
+        "income": income,
+        "profit": profit,
         "potentials": {"u": u, "v": v},
         "iterations": iterations,
         "improvement_possible": iterations > 0
@@ -162,8 +188,8 @@ def logika(cost_matrix, supply, demand):
 import json
 import webview
 
-def calculate(costs, supply, demand):
-    allocation, total_cost, steps = logika(costs, supply, demand)
+def calculate(costs, supply, demand, purchase_prices, selling_prices):
+    allocation, total_cost, steps = logika(costs, supply, demand, purchase_prices, selling_prices)
     return steps
 
 if __name__ == "__main__":
@@ -171,12 +197,24 @@ if __name__ == "__main__":
     costs = [[4, 6], [5, 7]]
     supply = [50, 60]
     demand = [60, 50]
-    allocation, cost, steps = logika(costs, supply, demand)
+    purchase_prices = [2, 3]  # Przykładowe ceny zakupu dla dostawców
+    selling_prices = [12, 13]  # Przykładowe ceny sprzedaży
+    allocation, cost, steps = logika(costs, supply, demand, purchase_prices, selling_prices)
     print(f"Rozwiązanie: {allocation}")
     print(f"Całkowity koszt: {cost}")
     print(f"Kroki: {steps}")
 
     # Uruchomienie interfejsu
-    api = type('API', (), {'calculate': lambda costs, supply, demand: calculate(json.loads(costs), json.loads(supply), json.loads(demand))})()
-    webview.create_window("Metoda Pośrednika", "index.html", js_api=api)
+    api = type('API', (), {
+        'calculate': lambda costs, supply, demand, purchase_prices, selling_prices: calculate(
+            json.loads(costs), 
+            json.loads(supply), 
+            json.loads(demand), 
+            json.loads(purchase_prices),
+            json.loads(selling_prices)
+        )
+    })()
+
+    webview.create_window("Metoda Pośrednika", "Index.html", js_api=api)
+
     webview.start()

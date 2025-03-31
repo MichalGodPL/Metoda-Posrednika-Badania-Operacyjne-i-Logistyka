@@ -100,18 +100,35 @@
             costs: [],
             supply: [],
             demand: [],
+            purchasePrices: [],  // Dodano ceny zakupu
+            sellingPrices: [],
             matrixGenerated: false,
             resultData: null,
             heatmapImage: '',
             networkImage: '',
             async calculate() {
                 try {
-                    console.log('Rozpoczynam obliczenia...', { costs: this.costs, supply: this.supply, demand: this.demand });
-                    let response = await window.pywebview.api.calculate(JSON.stringify(this.costs), JSON.stringify(this.supply), JSON.stringify(this.demand));
+                    console.log('Rozpoczynam obliczenia...', { 
+                        costs: this.costs, 
+                        supply: this.supply, 
+                        demand: this.demand, 
+                        purchasePrices: this.purchasePrices, 
+                        sellingPrices: this.sellingPrices 
+                    });
+                    let response = await window.pywebview.api.calculate(
+                        JSON.stringify(this.costs), 
+                        JSON.stringify(this.supply), 
+                        JSON.stringify(this.demand), 
+                        JSON.stringify(this.purchasePrices), 
+                        JSON.stringify(this.sellingPrices)
+                    );
                     console.log('Otrzymano odpowiedź z backendu:', response);
                     this.resultData = response;
                     this.tab = 'results';
-                    let chartResponse = await window.pywebview.api.generate_chart_images(JSON.stringify(this.costs), JSON.stringify(this.resultData));
+                    let chartResponse = await window.pywebview.api.generate_chart_images(
+                        JSON.stringify(this.costs), 
+                        JSON.stringify(this.resultData)
+                    );
                     console.log('Otrzymano wykresy:', chartResponse);
                     this.heatmapImage = 'data:image/png;base64,' + chartResponse.heatmap_image;
                     this.networkImage = 'data:image/png;base64,' + chartResponse.network_image;
@@ -121,7 +138,7 @@
                 }
             }
          }"
-         x-init="costs = []; supply = []; demand = [];">
+         x-init="costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];">
         <div class="flex justify-center mb-8 pt-4">
             <div class="title-dock bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center">
                 <h1 class="text-3xl font-bold text-white tracking-tight">
@@ -161,7 +178,7 @@
                                        placeholder="Odbiorcy">
                             </div>
                             <div class="flex justify-center mt-4">
-                                <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+                                <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); purchasePrices = Array(rows).fill(0); sellingPrices = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
                                         class="generate-btn p-3 rounded-full transition-all duration-300">
                                     <i class="fas fa-plus text-2xl text-gray-400"></i>
                                 </button>
@@ -207,10 +224,30 @@
                                             </div>
                                         </template>
                                         <div class="p-2"></div>
+                                        <!-- Wiersz dla cen zakupu -->
+                                        <div class="text-center font-medium text-blue-400 p-2">Cena zakupu</div>
+                                        <template x-for="i in rows" :key="i">
+                                            <div class="p-2">
+                                                <input type="number" x-model.number="purchasePrices[i-1]" 
+                                                       class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+                                                       placeholder="0">
+                                            </div>
+                                        </template>
+                                        <div class="p-2"></div>
+                                        <!-- Wiersz dla cen sprzedaży -->
+                                        <div class="text-center font-medium text-blue-400 p-2">Cena sprzedaży</div>
+                                        <template x-for="j in cols" :key="j">
+                                            <div class="p-2">
+                                                <input type="number" x-model.number="sellingPrices[j-1]" 
+                                                       class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+                                                       placeholder="0">
+                                            </div>
+                                        </template>
+                                        <div class="p-2"></div>
                                     </div>
                                 </div>
                                 <div class="flex justify-between mt-6">
-                                    <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = [];" 
+                                    <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];" 
                                             class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
                                         <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
                                     </button>
@@ -240,8 +277,23 @@
                         </template>
                         <template x-if="resultData">
                             <div class="text-left">
-                                <div class="mb-8 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                    <p class="text-lg font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400 text-xl" x-text="resultData.total_cost"></span></p>
+                                <!-- Zaktualizowana sekcja wyników w układzie siatki -->
+                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                        <p class="text-lg font-medium text-white">Koszt transportu: <span class="font-bold text-green-400 text-xl" x-text="resultData.transport_cost.toFixed(2)"></span></p>
+                                    </div>
+                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                        <p class="text-lg font-medium text-white">Koszt zakupu: <span class="font-bold text-green-400 text-xl" x-text="resultData.purchase_cost.toFixed(2)"></span></p>
+                                    </div>
+                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                        <p class="text-lg font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400 text-xl" x-text="resultData.total_cost.toFixed(2)"></span></p>
+                                    </div>
+                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                        <p class="text-lg font-medium text-white">Przychód: <span class="font-bold text-green-400 text-xl" x-text="resultData.income.toFixed(2)"></span></p>
+                                    </div>
+                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
+                                        <p class="text-lg font-medium text-white">Zysk: <span class="font-bold text-green-400 text-xl" x-text="resultData.profit.toFixed(2)"></span></p>
+                                    </div>
                                 </div>
                                 <div class="flex justify-center space-x-8 mb-12">
                                     <div>
