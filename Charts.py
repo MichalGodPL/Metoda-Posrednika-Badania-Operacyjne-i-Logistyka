@@ -1,6 +1,6 @@
 import matplotlib
 
-matplotlib.use('Agg')  # Przełącz na backend nieinteraktywny
+matplotlib.use('Agg')
 
 import matplotlib.pyplot as plt
 
@@ -20,7 +20,7 @@ def generate_charts(allocation, costs):
     costs = np.array(costs)
 
 
-    # 1. Macierz ciepła (Heatmap)
+    # 1. Macierz Ciepła (Heatmap)
 
     fig1, ax1 = plt.subplots(figsize=(8, 6))
 
@@ -75,7 +75,7 @@ def generate_charts(allocation, costs):
     plt.close(fig1)
 
 
-    # 2. Graf sieciowy (Network Graph)
+    # 2. Graf Sieciowy (Network Graph)
 
     G = nx.DiGraph()
 

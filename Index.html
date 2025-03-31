@@ -89,6 +89,55 @@
         }
         .dot:nth-child(2) { animation-delay: 0.2s; }
         .dot:nth-child(3) { animation-delay: 0.4s; }
+        .result-box {
+            width: 250px; /* Zwiększona szerokość dla wszystkich obszarów */
+            height: 60px;
+            padding: 0.5rem 1rem;
+            background-color: #2d3748;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        .result-box-potentials {
+            width: 350px; /* Troszkę dłuższy dla Potencjałów */
+            height: 60px;
+            padding: 0.5rem 1rem;
+            background-color: #2d3748;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        /* Stylizacja scrollbarów */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            border-radius: 5px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+        }
+        /* Dla Firefox */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #60a5fa #1f2937;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center">
@@ -100,7 +149,7 @@
             costs: [],
             supply: [],
             demand: [],
-            purchasePrices: [],  // Dodano ceny zakupu
+            purchasePrices: [],
             sellingPrices: [],
             matrixGenerated: false,
             resultData: null,
@@ -178,7 +227,7 @@
                                        placeholder="Odbiorcy">
                             </div>
                             <div class="flex justify-center mt-4">
-                                <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); purchasePrices = Array(rows).fill(0); sellingPrices = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+                                <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); purchasePrices = Array(rows).fill(0); sellingPrices = Array(rows).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
                                         class="generate-btn p-3 rounded-full transition-all duration-300">
                                     <i class="fas fa-plus text-2xl text-gray-400"></i>
                                 </button>
@@ -192,12 +241,13 @@
                             <div>
                                 <h3 class="text-lg font-medium mb-4 text-white text-center">Macierz kosztów:</h3>
                                 <div class="overflow-x-auto">
-                                    <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 2}, 80px);`">
+                                    <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 3}, 80px);`">
                                         <div class="p-2"></div>
                                         <template x-for="j in cols" :key="j">
                                             <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
                                         </template>
                                         <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
+                                        <div class="text-center font-medium text-blue-400 p-2">Cena sprzedaży</div>
                                         <template x-for="i in rows" :key="i">
                                             <div style="display: contents;">
                                                 <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
@@ -213,6 +263,11 @@
                                                            class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
                                                            placeholder="0">
                                                 </div>
+                                                <div class="p-2">
+                                                    <input type="number" x-model.number="sellingPrices[i-1]" 
+                                                           class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+                                                           placeholder="0">
+                                                </div>
                                             </div>
                                         </template>
                                         <div class="text-center font-medium text-blue-400 p-2">Popyt</div>
@@ -224,7 +279,7 @@
                                             </div>
                                         </template>
                                         <div class="p-2"></div>
-                                        <!-- Wiersz dla cen zakupu -->
+                                        <div class="p-2"></div>
                                         <div class="text-center font-medium text-blue-400 p-2">Cena zakupu</div>
                                         <template x-for="i in rows" :key="i">
                                             <div class="p-2">
@@ -234,15 +289,6 @@
                                             </div>
                                         </template>
                                         <div class="p-2"></div>
-                                        <!-- Wiersz dla cen sprzedaży -->
-                                        <div class="text-center font-medium text-blue-400 p-2">Cena sprzedaży</div>
-                                        <template x-for="j in cols" :key="j">
-                                            <div class="p-2">
-                                                <input type="number" x-model.number="sellingPrices[j-1]" 
-                                                       class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
-                                                       placeholder="0">
-                                            </div>
-                                        </template>
                                         <div class="p-2"></div>
                                     </div>
                                 </div>
@@ -267,7 +313,7 @@
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
                      class="flex-grow flex items-start justify-center relative">
                     <div class="text-center w-full max-w-4xl">
-                        <h2 class="text-2xl font-semibold mb-8 text-white section-title">Wyniki obliczeń</h2>
+                        <h2 class="text-2xl font-semibold mb-4 text-white section-title">Wyniki obliczeń</h2>
                         <template x-if="!resultData">
                             <div class="loading-dots">
                                 <div class="dot"></div>
@@ -277,25 +323,20 @@
                         </template>
                         <template x-if="resultData">
                             <div class="text-left">
-                                <!-- Zaktualizowana sekcja wyników w układzie siatki -->
-                                <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                        <p class="text-lg font-medium text-white">Koszt transportu: <span class="font-bold text-green-400 text-xl" x-text="resultData.transport_cost.toFixed(2)"></span></p>
+                                <!-- Pierwsze trzy obszary: Koszt transportu, Koszt zakupu, Całkowity koszt -->
+                                <div class="flex justify-center space-x-4 mb-8">
+                                    <div class="result-box">
+                                        <p class="text-sm font-medium text-white">Koszt transportu: <span class="font-bold text-green-400" x-text="resultData.transport_cost.toFixed(2)"></span></p>
                                     </div>
-                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                        <p class="text-lg font-medium text-white">Koszt zakupu: <span class="font-bold text-green-400 text-xl" x-text="resultData.purchase_cost.toFixed(2)"></span></p>
+                                    <div class="result-box">
+                                        <p class="text-sm font-medium text-white">Koszt zakupu: <span class="font-bold text-green-400" x-text="resultData.purchase_cost.toFixed(2)"></span></p>
                                     </div>
-                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                        <p class="text-lg font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400 text-xl" x-text="resultData.total_cost.toFixed(2)"></span></p>
-                                    </div>
-                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                        <p class="text-lg font-medium text-white">Przychód: <span class="font-bold text-green-400 text-xl" x-text="resultData.income.toFixed(2)"></span></p>
-                                    </div>
-                                    <div class="p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                        <p class="text-lg font-medium text-white">Zysk: <span class="font-bold text-green-400 text-xl" x-text="resultData.profit.toFixed(2)"></span></p>
+                                    <div class="result-box">
+                                        <p class="text-sm font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400" x-text="resultData.total_cost.toFixed(2)"></span></p>
                                     </div>
                                 </div>
-                                <div class="flex justify-center space-x-8 mb-12">
+                                <!-- Tabele -->
+                                <div class="flex justify-center space-x-8 mb-4">
                                     <div>
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Macierz kosztów:</h3>
                                         <div class="inline-block">
@@ -386,8 +427,17 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="mb-8 mt-4 p-4 bg-gray-800 rounded-3xl border-2 border-white shadow-lg">
-                                    <p class="text-lg font-medium text-white" x-text="'Potencjały: u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></p>
+                                <!-- Drugie trzy obszary: Potencjały, Przychód, Zysk -->
+                                <div class="flex justify-center space-x-4 mb-8">
+                                    <div class="result-box-potentials">
+                                        <p class="text-sm font-medium text-white">Potencjały: <span class="font-bold text-green-400" x-text="'u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></span></p>
+                                    </div>
+                                    <div class="result-box">
+                                        <p class="text-sm font-medium text-white">Przychód: <span class="font-bold text-green-400" x-text="resultData.income.toFixed(2)"></span></p>
+                                    </div>
+                                    <div class="result-box">
+                                        <p class="text-sm font-medium text-white">Zysk: <span class="font-bold text-green-400" x-text="resultData.profit.toFixed(2)"></span></p>
+                                    </div>
                                 </div>
                                 <div class="mb-8 p-4 bg-gray-800 rounded-lg border-2 border-white shadow-lg">
                                     <p class="text-lg font-medium text-white" x-text="resultData.iterations === 0 ? 'Brak możliwości poprawy po 0 iteracjach' : 'Możliwość poprawy po ' + resultData.iterations + ' iteracjach'"></p>
