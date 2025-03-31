@@ -101,5 +101,3 @@ This application demonstrates the use of the Intermediary Method in transportati
 ![](2.png)
 
 ![](3.png)
-
-![](4.png)
