@@ -182,7 +182,7 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices, fixed_a
                     while current != start_vertex:
                         prev = visited[current]
                         if current.startswith('r'):
-                            # Dodajemy krawędź kolumna->wiersz
+                            # Dodajemy krawędź kolumna->wiersz Kopia
                             row_idx = int(current[1:])
                             col_idx = int(prev[1:])
                             path.append((row_idx, col_idx))
