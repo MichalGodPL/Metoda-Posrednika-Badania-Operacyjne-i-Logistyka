@@ -1,505 +1,1000 @@
 <!DOCTYPE html>
+
 <html lang="pl">
+
+
 <head>
+
     <meta charset="UTF-8">
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Metoda Pośrednika - Logistyka</title>
-    
+
     <script src="https://cdn.tailwindcss.com"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <link rel="stylesheet" href="Style.css">
 
+
     <style>
+
         @keyframes slideIn {
+
             0% { opacity: 0; transform: translateY(-20px); }
+
             100% { opacity: 1; transform: translateY(0); }
+
         }
+
         @keyframes glowPulse {
+
             0% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+
             50% { text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 0 0 30px rgba(96, 165, 250, 0.5); }
+
             100% { text-shadow: 0 0 5px rgba(255, 255, 255, 0.2); }
+
         }
+
         @keyframes bounce {
+
             0%, 100% { transform: translateY(0); }
+
             50% { transform: translateY(-10px); }
+
         }
+
         .animate-slide-in { animation: slideIn 1s ease-out forwards; }
+
         .table-cell { width: 80px; height: 60px; text-align: center; }
+
         .table-header { width: 80px; height: 40px; text-align: center; }
+
         .chart-container {
+
             width: 500px;
+
             height: 500px;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
         }
+
         .chart-image { 
+
             width: 100%;
+
             height: 100%;
+
             border-radius: 10px; 
+
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+
             transition: transform 0.3s ease;
+
             object-fit: contain;
+
         }
+
         .chart-image:hover { transform: scale(1.05); }
+
         .input-field { transition: all 0.3s ease; }
+
         .input-field:focus { transform: scale(1.02); border-color: #60a5fa; }
+
         .title-dock { 
+
             max-width: 600px; 
+
             padding: 1rem 2rem; 
+
             transition: all 0.3s ease; 
+
         }
+
         .title-dock:hover { 
+
             transform: translateY(-5px) scale(1.05); 
+
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+
         }
+
         .title-dock:hover h1 { 
+
             animation: glowPulse 1.5s infinite; 
+
         }
+
         .info-tile { transition: all 0.3s ease; }
+
         .info-tile:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4); }
+
         .info-tile p { text-align: justify; }
+
         .section-title {
+
             background: linear-gradient(90deg, rgba(96, 165, 250, 0.2), rgba(255, 255, 255, 0.1));
+
             border: 2px solid rgba(255, 255, 255, 0.3);
+
             border-radius: 15px;
+
             padding: 0.5rem 2rem;
+
             display: inline-block;
+
             animation: glowPulse 2s infinite, slideIn 1s ease-out forwards;
+
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+
         }
+
         .loading-dots {
+
             position: absolute;
+
             top: 50%;
+
             left: 50%;
+
             transform: translate(-50%, -50%);
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
         }
+
         .dot {
+
             width: 12px;
+
             height: 12px;
+
             background-color: #60a5fa;
+
             border-radius: 50%;
+
             margin: 0 6px;
+
             animation: bounce 1.2s infinite ease-in-out;
+
         }
+
         .dot:nth-child(2) { animation-delay: 0.2s; }
+
         .dot:nth-child(3) { animation-delay: 0.4s; }
+
         .result-box {
+
             width: 250px;
+
             height: 60px;
+
             padding: 0.5rem 1rem;
+
             background-color: #2d3748;
+
             border: 2px solid rgba(255, 255, 255, 0.3);
+
             border-radius: 10px;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             text-align: center;
+
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
         }
+
         .result-box-potentials {
+
             width: 350px;
+
             height: 60px;
+
             padding: 0.5rem 1rem;
+
             background-color: #2d3748;
+
             border: 2px solid rgba(255, 255, 255, 0.3);
+
             border-radius: 10px;
+
             display: flex;
+
             align-items: center;
+
             justify-content: center;
+
             text-align: center;
+
             box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
         }
+
         ::-webkit-scrollbar {
+
             width: 10px;
+
             height: 10px;
+
         }
+
         ::-webkit-scrollbar-track {
+
             background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+
             border-radius: 5px;
+
         }
+
         ::-webkit-scrollbar-thumb {
+
             background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+
             border-radius: 5px;
+
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+
             transition: background 0.3s ease;
+
         }
+
         ::-webkit-scrollbar-thumb:hover {
+
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+
         }
+
         * {
+
             scrollbar-width: thin;
+
             scrollbar-color: #60a5fa #1f2937;
+
         }
+
         /* Dodajemy styl, aby zapobiec nachodzeniu docka na tabelę */
+
         .main-container {
+
             padding-bottom: 140px; /* Odstęp na dole, aby dock nie zasłaniał treści */
+
         }
+
         .table-container {
+
             max-height: calc(100vh - 250px); /* Ograniczenie wysokości tabeli, aby była przewijalna */
+
             overflow-y: auto; /* Włączenie przewijania w pionie */
+
             overflow-x: auto; /* Zachowanie przewijania w poziomie ez */
+
         }
+
     </style>
+
 </head>
+
+
 <body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center">
+
     <div class="container mx-auto p-6 max-w-5xl flex flex-col flex-grow main-container"
+
          x-data="{ 
+
             tab: 'input',
+
             rows: '',
+
             cols: '',
+
             costs: [],
+
             supply: [],
+
             demand: [],
+
             purchasePrices: [],
+
             sellingPrices: [],
+
             matrixGenerated: false,
+
             resultData: null,
+
             heatmapImage: '',
+
             networkImage: '',
+
             async calculate() {
+
                 try {
+
                     console.log('Rozpoczynam obliczenia...', { 
+
                         costs: this.costs, 
+
                         supply: this.supply, 
+
                         demand: this.demand, 
+
                         purchasePrices: this.purchasePrices, 
+
                         sellingPrices: this.sellingPrices 
+
                     });
+
                     let response = await window.pywebview.api.calculate(
+
                         JSON.stringify(this.costs), 
+
                         JSON.stringify(this.supply), 
+
                         JSON.stringify(this.demand), 
+
                         JSON.stringify(this.purchasePrices), 
+
                         JSON.stringify(this.sellingPrices)
+
                     );
+
                     console.log('Otrzymano odpowiedź z backendu:', response);
+
                     this.resultData = response;
+
                     this.tab = 'results';
+
                     let chartResponse = await window.pywebview.api.generate_chart_images(
+
                         JSON.stringify(this.costs), 
+
                         JSON.stringify(this.resultData)
+
                     );
+
                     console.log('Otrzymano wykresy:', chartResponse);
+
                     this.heatmapImage = 'data:image/png;base64,' + chartResponse.heatmap_image;
+
                     this.networkImage = 'data:image/png;base64,' + chartResponse.network_image;
+
                 } catch (e) {
+
                     console.error('Błąd podczas obliczeń lub generowania wykresów:', e);
+
                     alert('Błąd: ' + e);
+
                 }
+
             }
+
          }"
+
          x-init="costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];">
+
         <div class="flex justify-center mb-8 pt-4">
+
             <div class="title-dock bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full shadow-lg flex items-center justify-center">
+
                 <h1 class="text-3xl font-bold text-white tracking-tight">
+
                     <i class="fas fa-truck mr-2"></i> Metoda Pośrednika w Logistyce
+
                 </h1>
+
             </div>
+
         </div>
-        
+
         <div class="flex flex-col flex-grow justify-between mt-[-1rem]">
+
             <div class="flex-grow min-h-[600px] flex flex-col pt-2 relative">
+
                 <div x-show="tab === 'input'" 
+
                      x-transition:enter="transition ease-out duration-500" 
+
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
+
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
+
                      class="flex-grow flex items-start justify-center">
+
                     <div class="w-full max-w-4xl">
+
                         <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6 mb-6">
+
                             <div class="info-tile bg-gray-800 bg-opacity-50 p-4 rounded-lg shadow-md w-full md:w-1/2">
+
                                 <h3 class="text-lg font-medium text-white mb-2">O metodzie</h3>
+
                                 <p class="text-sm text-gray-400">Metoda Pośrednika (ang. Stepping Stone Method) to algorytm optymalizacji w problemach transportowych. Pozwala znaleźć optymalne rozwiązanie minimalizujące koszty transportu pomiędzy dostawcami a odbiorcami.</p>
+
                             </div>
+
                             <div class="info-tile bg-gray-800 bg-opacity-50 p-4 rounded-lg shadow-md w-full md:w-1/2">
+
                                 <h3 class="text-lg font-medium text-white mb-2">Cel metody</h3>
+
                                 <p class="text-sm text-gray-400">Celem jest zoptymalizowanie alokacji zasobów tak, aby suma kosztów transportu była jak najmniejsza, przy jednoczesnym spełnieniu wymagań podaży i popytu.</p>
+
                             </div>
+
                         </div>
+
                         <h2 class="text-2xl font-semibold mb-6 text-white text-center">Wprowadź dane problemu transportowego</h2>
+
                         <div x-show="!matrixGenerated" class="mb-6">
+
                             <label class="block mb-3 text-lg text-center">Określ Rozmiar Macierzy Kosztów:</label>
+
                             <div class="flex space-x-4 items-center justify-center">
+
                                 <input x-model.number="rows" type="number" min="1" 
+
                                        class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                        placeholder="Dostawcy">
+
                                 <span class="text-2xl">×</span>
+
                                 <input x-model.number="cols" type="number" min="1" 
+
                                        class="w-24 p-3 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                        placeholder="Odbiorcy">
+
                             </div>
+
                             <div class="flex justify-center mt-4">
+
                                 <button @click="if (rows > 0 && cols > 0) { costs = Array(rows).fill().map(() => Array(cols).fill(0)); supply = Array(rows).fill(0); demand = Array(cols).fill(0); purchasePrices = Array(rows).fill(0); sellingPrices = Array(cols).fill(0); matrixGenerated = true; } else { alert('Proszę wprowadzić poprawne wartości!'); }" 
+
                                         class="generate-btn p-3 rounded-full transition-all duration-300">
+
                                     <i class="fas fa-plus text-2xl text-gray-400"></i>
+
                                 </button>
+
                             </div>
+
                         </div>
+
                         <div x-show="matrixGenerated" 
+
                              x-transition:enter="transition ease-out duration-500" 
+
                              x-transition:enter-start="opacity-0 transform scale-95" 
+
                              x-transition:enter-end="opacity-100 transform scale-100"
+
                              class="flex justify-center">
+
                             <div class="table-container">
+
                                 <h3 class="text-lg font-medium mb-4 text-white text-center">Macierz kosztów:</: </h3>
+
                                 <div class="overflow-x-auto">
+
                                     <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 3}, 80px);`">
+
                                         <div class="p-2"></div>
+
                                         <template x-for="j in cols" :key="j">
+
                                             <div class="text-center font-medium text-blue-400 p-2" x-text="'O' + (j)"></div>
+
                                         </template>
+
                                         <div class="text-center font-medium text-blue-400 p-2">Podaż</div>
+
                                         <div class="text-center font-medium text-blue-400 p-2">Cena zakupu</div>
+
                                         <template x-for="i in rows" :key="i">
+
                                             <div style="display: contents;">
+
                                                 <div class="text-center font-medium text-blue-400 p-2" x-text="'D' + (i)"></div>
+
                                                 <template x-for="j in cols" :key="j">
+
                                                     <div class="p-2">
+
                                                         <input type="number" x-model.number="costs[i-1][j-1]" 
+
                                                                class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                                                placeholder="0">
+
                                                     </div>
+
                                                 </template>
+
                                                 <div class="p-2">
+
                                                     <input type="number" x-model.number="supply[i-1]" 
+
                                                            class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                                            placeholder="0">
+
                                                 </div>
+
                                                 <div class="p-2">
+
                                                     <input type="number" x-model.number="purchasePrices[i-1]" 
+
                                                            class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                                            placeholder="0">
+
                                                 </div>
+
                                             </div>
+
                                         </template>
+
                                         <div class="text-center font-medium text-blue-400 p-2">Popyt</div>
+
                                         <template x-for="j in cols" :key="j">
+
                                             <div class="p-2">
+
                                                 <input type="number" x-model.number="demand[j-1]" 
+
                                                        class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                                        placeholder="0">
+
                                             </div>
+
                                         </template>
+
                                         <div class="p-2"></div>
+
                                         <div class="p-2"></div>
+
                                         <div class="text-center font-medium text-blue-400 p-2">Cena sprzedaży</div>
+
                                         <template x-for="j in cols" :key="j">
+
                                             <div class="p-2">
+
                                                 <input type="number" x-model.number="sellingPrices[j-1]" 
+
                                                        class="w-full p-2 bg-gray-800 border border-gray-600 rounded-full text-white focus:ring-2 focus:ring-blue-500 input-field" 
+
                                                        placeholder="0">
+
                                             </div>
+
                                         </template>
+
                                         <div class="p-2"></div>
+
                                         <div class="p-2"></div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     </div>
+
                 </div>
 
                 <div x-show="tab === 'results'" 
+
                      x-transition:enter="transition ease-out duration-500" 
+
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
+
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
+
                      class="flex-grow flex items-start justify-center relative">
+
                     <div class="text-center w-full max-w-4xl">
+
                         <h2 class="text-2xl font-semibold mb-4 text-white section-title">Wyniki obliczeń</h2>
+
                         <template x-if="!resultData">
+
                             <div class="loading-dots">
+
                                 <div class="dot"></div>
+
                                 <div class="dot"></div>
+
                                 <div class="dot"></div>
+
                             </div>
+
                         </template>
+
                         <template x-if="resultData">
+
                             <div class="text-left">
+
                                 <div class="flex justify-center space-x-4 mb-8">
+
                                     <div class="result-box">
+
                                         <p class="text-sm font-medium text-white">Koszt transportu: <span class="font-bold text-green-400" x-text="resultData.transport_cost.toFixed(2)"></span></p>
+
                                     </div>
+
                                     <div class="result-box">
+
                                         <p class="text-sm font-medium text-white">Koszt zakupu: <span class="font-bold text-green-400" x-text="resultData.purchase_cost.toFixed(2)"></span></p>
+
                                     </div>
+
                                     <div class="result-box">
+
                                         <p class="text-sm font-medium text-white">Całkowity koszt: <span class="font-bold text-green-400" x-text="resultData.total_cost.toFixed(2)"></span></p>
+
                                     </div>
+
                                 </div>
+
                                 <div class="flex justify-center space-x-8 mb-4">
+
                                     <div>
+
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Macierz kosztów:</h3>
+
                                         <div class="inline-block">
+
                                             <table class="table-auto border-collapse bg-gray-800 rounded-lg shadow-lg">
+
                                                 <thead>
+
                                                     <tr>
+
                                                         <th class="table-header text-blue-400 border-b border-gray-600"></th>
+
                                                         <template x-for="j in resultData.allocation[0].length" :key="j">
+
                                                             <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + j"></th>
+
                                                         </template>
+
                                                     </tr>
+
                                                 </thead>
+
                                                 <tbody>
+
                                                     <template x-for="(row, i) in costs" :key="i">
+
                                                         <tr>
+
                                                             <td class="table-cell text-blue-400 border-r border-gray-600" x-text="'D' + (i + 1)"></td>
+
                                                             <template x-for="(cell, j) in row" :key="cell">
+
                                                                 <td class="table-cell bg-gray-700" x-text="cell"></td>
+
                                                             </template>
+
                                                         </tr>
+
                                                     </template>
+
                                                 </tbody>
+
                                             </table>
+
                                         </div>
+
                                     </div>
+
                                     <div>
+
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.initial_allocation[0].length * 80 + 80}px`">Początkowa alokacja:</h3>
+
                                         <div class="inline-block">
+
                                             <table class="table-auto border-collapse bg-gray-800 rounded-lg shadow-lg">
+
                                                 <thead>
+
                                                     <tr>
+
                                                         <th class="table-header text-blue-400 border-b border-gray-600"></th>
+
                                                         <template x-for="j in resultData.initial_allocation[0].length" :key="j">
+
                                                             <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + j"></th>
+
                                                         </template>
+
                                                     </tr>
+
                                                 </thead>
+
                                                 <tbody>
+
                                                     <template x-for="(row, i) in resultData.initial_allocation" :key="i">
+
                                                         <tr>
+
                                                             <td class="table-cell text-blue-400 border-r border-gray-600" x-text="'D' + (i + 1)"></td>
+
                                                             <template x-for="(cell, j) in row" :key="cell">
+
                                                                 <td class="table-cell" :class="cell > 0 ? 'bg-green-700' : 'bg-gray-700'">
+
                                                                     <div class="flex flex-col items-center justify-center h-full">
+
                                                                         <span x-text="cell"></span>
+
                                                                         <template x-if="cell > 0">
+
                                                                             <span class="text-xs text-gray-400" x-text="costs[i][j] * cell"></span>
+
                                                                         </template>
+
                                                                     </div>
+
                                                                 </td>
+
                                                             </template>
+
                                                         </tr>
+
                                                     </template>
+
                                                 </tbody>
+
                                             </table>
+
                                         </div>
+
                                     </div>
+
                                     <div>
+
                                         <h3 class="text-xl font-medium mb-2 text-white animate-slide-in text-center" :style="`width: ${resultData.allocation[0].length * 80 + 80}px`">Końcowa alokacja:</h3>
+
                                         <div class="inline-block">
+
                                             <table class="table-auto border-collapse bg-gray-800 rounded-lg shadow-lg">
+
                                                 <thead>
+
                                                     <tr>
+
                                                         <th class="table-header text-blue-400 border-b border-gray-600"></th>
+
                                                         <template x-for="j in resultData.allocation[0].length" :key="j">
+
                                                             <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + j"></th>
+
                                                         </template>
+
                                                     </tr>
+
                                                 </thead>
+
                                                 <tbody>
+
                                                     <template x-for="(row, i) in resultData.allocation" :key="i">
+
                                                         <tr>
+
                                                             <td class="table-cell text-blue-400 border-r border-gray-600" x-text="'D' + (i + 1)"></td>
+
                                                             <template x-for="(cell, j) in row" :key="cell">
+
                                                                 <td class="table-cell" :class="cell > 0 ? 'bg-green-700' : 'bg-gray-700'">
+
                                                                     <div class="flex flex-col items-center justify-center h-full">
+
                                                                         <span x-text="cell"></span>
+
                                                                         <template x-if="cell > 0">
+
                                                                             <span class="text-xs text-gray-400" x-text="costs[i][j] * cell"></span>
+
                                                                         </template>
+
                                                                     </div>
+
                                                                 </td>
+
                                                             </template>
+
                                                         </tr>
+
                                                     </template>
+
                                                 </tbody>
+
                                             </table>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                                 <div class="flex justify-center space-x-4 mb-8">
+
                                     <div class="result-box-potentials">
+
                                         <p class="text-sm font-medium text-white">Potencjały: <span class="font-bold text-green-400" x-text="'u=[' + resultData.potentials.u.join(', ') + '], v=[' + resultData.potentials.v.join(', ') + ']'"></span></p>
+
                                     </div>
+
                                     <div class="result-box">
+
                                         <p class="text-sm font-medium text-white">Przychód: <span class="font-bold text-green-400" x-text="resultData.income.toFixed(2)"></span></p>
+
                                     </div>
+
                                     <div class="result-box">
+
                                         <p class="text-sm font-medium text-white">Zysk: <span class="font-bold text-green-400" x-text="resultData.profit.toFixed(2)"></span></p>
+
                                     </div>
+
                                 </div>
+
                                 <div class="mb-8 p-4 bg-gray-800 rounded-lg border-2 border-white shadow-lg">
+
                                     <p class="text-lg font-medium text-white" x-text="resultData.iterations === 0 ? 'Brak możliwości poprawy po 0 iteracjach' : 'Możliwość poprawy po ' + resultData.iterations + ' iteracjach'"></p>
+
                                 </div>
+
                             </div>
+
                         </template>
+
                     </div>
+
                 </div>
 
                 <div x-show="tab === 'chart'" 
+
                      x-transition:enter="transition ease-out duration-500" 
+
                      x-transition:enter-start="opacity-0 transform -translate-y-4" 
+
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
+
                      class="flex-grow flex items-start justify-center relative">
+
                     <div class="text-center w-full max-w-4xl pt-2">
+
                         <h2 class="text-2xl font-semibold mb-8 text-white section-title">Wykresy rozwiązania</h2>
+
                         <template x-if="!resultData">
+
                             <div class="loading-dots">
+
                                 <div class="dot"></div>
+
                                 <div class="dot"></div>
+
                                 <div class="dot"></div>
+
                             </div>
+
                         </template>
+
                         <template x-if="resultData">
+
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-52 justify-items-center">
+
                                 <div class="chart-container">
+
                                     <img x-bind:src="heatmapImage" class="chart-image" alt="Macierz ciepła" x-show="heatmapImage">
+
                                 </div>
+
                                 <div class="chart-container">
+
                                     <img x-bind:src="networkImage" class="chart-image" alt="Graf sieciowy" x-show="networkImage">
+
                                 </div>
+
                             </div>
+
                         </template>
+
                     </div>
+
                 </div>
+
             </div>
 
             <div class="mt-8 flex justify-center relative">
+
                 <div class="dock flex justify-center space-x-4 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6 left-1/2 transform -translate-x-1/2">
+
                     <button @click="tab = 'input'" 
+
                             :class="{ 'scale-110 text-blue-400': tab === 'input', 'text-gray-400': tab !== 'input' }"
+
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+
                         <i class="fas fa-keyboard text-2xl"></i>
+
                     </button>
+
                     <button @click="tab = 'results'" 
+
                             :class="{ 'scale-110 text-green-400': tab === 'results', 'text-gray-400': tab !== 'results' }"
+
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+
                         <i class="fas fa-list-check text-2xl"></i>
+
                     </button>
+
                     <button @click="tab = 'chart'" 
+
                             :class="{ 'scale-110 text-purple-400': tab === 'chart', 'text-gray-400': tab !== 'chart' }"
+
                             class="p-3 rounded-full hover:scale-110 transition-all duration-300">
+
                         <i class="fas fa-chart-line text-2xl"></i>
+
                     </button>
+
                 </div>
+
                 <div x-show="tab === 'input' && matrixGenerated" 
+
                      class="action-dock flex justify-center space-x-2 bg-gray-800 bg-opacity-70 backdrop-blur-md rounded-full p-3 shadow-lg fixed bottom-6 left-1/2 transform translate-x-[calc(50%+120px)]">
+
                     <button @click="matrixGenerated = false; rows = ''; cols = ''; costs = []; supply = []; demand = []; purchasePrices = []; sellingPrices = [];" 
+
                             class="p-3 rounded-full bg-gray-600 text-white hover:bg-red-600 hover:text-white transition-all duration-300 transform hover:scale-105 group">
+
                         <i class="fas fa-trash text-xl group-hover:fa-trash-alt transition-all duration-300"></i>
+
                     </button>
+
                     <button @click="calculate()"
+
                             class="p-3 rounded-full bg-gray-800 text-white hover:bg-gray-600 transition-all duration-300 transform hover:scale-105">
+
                         <i class="fas fa-table text-xl"></i>
+
                     </button>
+
                 </div>
+
             </div>
+
         </div>
+
     </div>
+
 </body>
+
 </html>
