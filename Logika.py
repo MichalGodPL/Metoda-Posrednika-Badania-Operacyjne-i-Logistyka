@@ -916,7 +916,7 @@ if __name__ == "__main__":
         print(f"✗ Part D profit calculation doesn't match. Expected: {expected_profit_d}, Got: {steps_d['profit']}")
     
 
-    # Dodaj dodatkowy przypadek testowy dla sprawdzenia uniwersalności
+    # Dodaj dodatkowy przypadek testowy dla sprawdzenia uniwersalności :D
 
     print(f"\nTest Case 3 (Universal Test):")
 
@@ -962,7 +962,7 @@ if __name__ == "__main__":
     print(f"Purchase Cost: {steps_u['purchase_cost']}")
 
     print(f"Income: {steps_u['income']}")
-    
+
     print(f"Profit: {steps_u['profit']}")
     
 
