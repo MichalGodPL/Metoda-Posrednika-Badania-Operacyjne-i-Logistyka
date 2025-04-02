@@ -136,10 +136,19 @@
             scrollbar-width: thin;
             scrollbar-color: #60a5fa #1f2937;
         }
+        /* Dodajemy styl, aby zapobiec nachodzeniu docka na tabelę */
+        .main-container {
+            padding-bottom: 120px; /* Odstęp na dole, aby dock nie zasłaniał treści */
+        }
+        .table-container {
+            max-height: calc(100vh - 250px); /* Ograniczenie wysokości tabeli, aby była przewijalna */
+            overflow-y: auto; /* Włączenie przewijania w pionie */
+            overflow-x: auto; /* Zachowanie przewijania w poziomie */
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-gray-200 font-poppins min-h-screen flex flex-col items-center">
-    <div class="container mx-auto p-6 max-w-5xl flex flex-col flex-grow"
+    <div class="container mx-auto p-6 max-w-5xl flex flex-col flex-grow main-container"
          x-data="{ 
             tab: 'input',
             rows: '',
@@ -202,7 +211,7 @@
                      x-transition:enter-end="opacity-100 transform translate-y-0" 
                      class="flex-grow flex items-start justify-center">
                     <div class="w-full max-w-4xl">
-                        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-yiatrics=0 md:space-x-6 mb-6">
+                        <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6 mb-6">
                             <div class="info-tile bg-gray-800 bg-opacity-50 p-4 rounded-lg shadow-md w-full md:w-1/2">
                                 <h3 class="text-lg font-medium text-white mb-2">O metodzie</h3>
                                 <p class="text-sm text-gray-400">Metoda Pośrednika (ang. Stepping Stone Method) to algorytm optymalizacji w problemach transportowych. Pozwala znaleźć optymalne rozwiązanie minimalizujące koszty transportu pomiędzy dostawcami a odbiorcami.</p>
@@ -236,8 +245,8 @@
                              x-transition:enter-start="opacity-0 transform scale-95" 
                              x-transition:enter-end="opacity-100 transform scale-100"
                              class="flex justify-center">
-                            <div>
-                                <h3 class="text-lg font-medium mb-4 text-white text-center">Macierz kosztów:</h3>
+                            <div class="table-container">
+                                <h3 class="text-lg font-medium mb-4 text-white text-center">Macierz kosztów:</: </h3>
                                 <div class="overflow-x-auto">
                                     <div class="grid gap-2" :style="`grid-template-columns: repeat(${cols + 3}, 80px);`">
                                         <div class="p-2"></div>
@@ -313,7 +322,7 @@
                             <div class="text-left">
                                 <div class="flex justify-center space-x-4 mb-8">
                                     <div class="result-box">
-                                        <p class="text-sm font-medium text-white">Koszt transportu: <span class="font-bold text-green-400"имсяx-text="resultData.transport_cost.toFixed(2)"></span></p>
+                                        <p class="text-sm font-medium text-white">Koszt transportu: <span class="font-bold text-green-400" x-text="resultData.transport_cost.toFixed(2)"></span></p>
                                     </div>
                                     <div class="result-box">
                                         <p class="text-sm font-medium text-white">Koszt zakupu: <span class="font-bold text-green-400" x-text="resultData.purchase_cost.toFixed(2)"></span></p>
