@@ -1,102 +1,184 @@
 /* Style.css */
+
 body {
+
     font-family: 'Poppins', sans-serif;
+
     background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+
     color: #e5e7eb;
+
 }
+
 
 .container {
+    
     max-width: 1200px;
+
 }
+
 
 button {
+
     transition: all 0.3s ease;
+
 }
+
 
 input[type="number"] {
+
     appearance: textfield;
+
     -moz-appearance: textfield;
+
 }
+
 
 input[type="number"]::-webkit-outer-spin-button,
+
 input[type="number"]::-webkit-inner-spin-button {
+
     -webkit-appearance: none;
+
     margin: 0;
+
 }
+
 
 input:focus {
+
     outline: none;
+
     border-color: #3b82f6;
+
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+
 }
+
 
 h1, h2, h3 {
+
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
 }
+
 
 button:hover {
+
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+
 }
+
 
 canvas {
+
     display: block; /* Zapobiega problemom z wyświetlaniem */
+
 }
+
 
 /* Stylizacja siatki macierzy */
+
 .grid {
+
     display: grid;
+
     align-items: center;
+
     justify-items: center;
+
 }
+
 
 .grid input {
+
     width: 60px;
+
     text-align: center;
+
 }
 
-/* Stylizacja docka w stylu iPhone */
+
 .dock {
+
     display: flex;
+
     align-items: center;
+
     background: rgba(255, 255, 255, 0.1); /* Lekko przezroczyste tło */
+
     backdrop-filter: blur(10px); /* Efekt rozmycia tła */
+
     border-radius: 20px; /* Zaokrąglone rogi */
+
     padding: 8px 16px; /* Wewnętrzny odstęp */
+
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); /* Cień */
+
 }
+
 
 .dock button {
+
     background: none;
+
     border: none;
+
     outline: none;
+
     cursor: pointer;
+
     transition: transform 0.3s ease, color 0.3s ease;
+
 }
+
 
 .dock button:hover {
+
     transform: scale(1.2); /* Efekt powiększenia przy najechaniu */
+
 }
+
 
 .dock button i {
+
     font-size: 1.75rem; /* Rozmiar ikony */
+
 }
+
 
 /* Stylizacja przycisku generowania macierzy */
+
 .generate-btn {
+
     background: rgba(255, 255, 255, 0.1); /* Tło takie samo jak dock */
+
     backdrop-filter: blur(10px); /* Efekt rozmycia tła, taki sam jak w docku */
+
     border: none;
+
     outline: none;
+
     cursor: pointer;
+
     transition: transform 0.3s ease, background 0.3s ease; /* Dodajemy przejście dla tła */
+
 }
+
 
 .generate-btn:hover {
+
     transform: scale(1.2); /* Efekt powiększenia przy najechaniu */
+
     background: rgba(255, 255, 255, 0.15); /* Lekka zmiana koloru tła przy najechaniu */
+
 }
 
+
 .generate-btn i {
+
     font-size: 1.75rem; /* Rozmiar ikony, taki sam jak w docku */
+
     color: #9ca3af; /* Kolor ikony pasujący do docka (text-gray-400) */
+    
 }
