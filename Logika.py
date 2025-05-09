@@ -2,20 +2,6 @@ import json
 import webview
 
 def logika(cost_matrix, supply, demand, purchase_prices, selling_prices, fixed_allocations=None):
-    """
-    Solves the intermediary problem to maximize profit using a greedy approach.
-    
-    Args:
-        cost_matrix: Transportation costs between suppliers and receivers
-        supply: List of supply quantities for each supplier
-        demand: List of demand quantities for each receiver
-        purchase_prices: Purchase prices for each supplier
-        selling_prices: Selling prices for each receiver
-        fixed_allocations: Optional dictionary specifying fixed allocations {(i,j): amount}
-        
-    Returns:
-        Tuple of (final allocation, total cost, calculation steps)
-    """
     # Store original dimensions and data
     rows = len(cost_matrix)
     cols = len(cost_matrix[0])
@@ -51,6 +37,9 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices, fixed_a
             profit = selling_prices[j] - purchase_prices[i] - cost_matrix[i][j]
             row.append(profit)
         profit_matrix.append(row)
+    
+    # Save initial allocation (before greedy allocation)
+    initial_allocation = [row[:] for row in allocation]
     
     # Create sorted list of routes by profit
     profit_list = []
@@ -108,16 +97,44 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices, fixed_a
     
     cost_results = calculate_final_costs(allocation, rows, cols, cost_matrix, purchase_prices, selling_prices)
     
+    # Compute potentials for display purposes (not used in calculation)
+    u = [None] * rows
+    v = [None] * cols
+    u[0] = 0  # Anchor first potential
+    
+    # Find basic cells (non-zero allocations)
+    basic_cells = [(i, j) for i in range(rows) for j in range(cols) if allocation[i][j] > 0]
+    
+    # Solve for potentials: profit[i][j] = u[i] + v[j] for allocated cells
+    changes = True
+    while changes and (None in u or None in v):
+        changes = False
+        for i, j in basic_cells:
+            if u[i] is not None and v[j] is None:
+                v[j] = profit_matrix[i][j] - u[i]
+                changes = True
+            elif v[j] is not None and u[i] is None:
+                u[i] = profit_matrix[i][j] - v[j]
+                changes = True
+    
+    # Set remaining potentials to 0 if not computed
+    for i in range(rows):
+        if u[i] is None:
+            u[i] = 0
+    for j in range(cols):
+        if v[j] is None:
+            v[j] = 0
+    
     # Prepare results
     steps = {
-        "initial_allocation": [row[:] for row in allocation],
+        "initial_allocation": initial_allocation,
         "allocation": allocation,
         "total_cost": cost_results["total_cost"],
         "transport_cost": cost_results["transport_cost"],
         "purchase_cost": cost_results["purchase_cost"],
         "income": cost_results["income"],
         "profit": cost_results["profit"],
-        "potentials": {"u": [0] * rows, "v": [0] * cols},
+        "potentials": {"u": u, "v": v},
         "iterations": 0,
         "improvement_possible": False
     }
