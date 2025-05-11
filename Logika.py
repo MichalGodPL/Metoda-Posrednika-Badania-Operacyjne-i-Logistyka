@@ -97,7 +97,7 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices, fixed_a
     
     cost_results = calculate_final_costs(allocation, rows, cols, cost_matrix, purchase_prices, selling_prices)
     
-    # Compute potentials for display purposes (not used in calculation)
+    # Compute potentials for display purposes
     u = [None] * rows
     v = [None] * cols
     u[0] = 0  # Anchor first potential
@@ -105,25 +105,51 @@ def logika(cost_matrix, supply, demand, purchase_prices, selling_prices, fixed_a
     # Find basic cells (non-zero allocations)
     basic_cells = [(i, j) for i in range(rows) for j in range(cols) if allocation[i][j] > 0]
     
-    # Solve for potentials: profit[i][j] = u[i] + v[j] for allocated cells
-    changes = True
-    while changes and (None in u or None in v):
-        changes = False
+    # Check if we have enough basic cells to determine all potentials
+    if len(basic_cells) < rows + cols - 1:
+        # Handle degenerate case - we need to add dummy allocations
+        non_basic = [(i, j) for i in range(rows) for j in range(cols) if allocation[i][j] == 0]
+        for i, j in non_basic:
+            if len(basic_cells) >= rows + cols - 1:
+                break
+            basic_cells.append((i, j))
+            # Adding an epsilon allocation (conceptually, not actually modifying allocation)
+    
+    # Solve for potentials using a more reliable approach
+    attempts = 0
+    max_attempts = rows * cols  # Avoid infinite loops
+    
+    while (None in u or None in v) and attempts < max_attempts:
+        made_progress = False
         for i, j in basic_cells:
             if u[i] is not None and v[j] is None:
                 v[j] = profit_matrix[i][j] - u[i]
-                changes = True
+                made_progress = True
             elif v[j] is not None and u[i] is None:
                 u[i] = profit_matrix[i][j] - v[j]
-                changes = True
+                made_progress = True
+        
+        if not made_progress:
+            # If we're stuck but still have unknowns, we might need to set another anchor
+            # This is a fallback for degenerate cases
+            for i in range(rows):
+                if u[i] is None:
+                    u[i] = 0
+                    made_progress = True
+                    break
+            if not made_progress:
+                for j in range(cols):
+                    if v[j] is None:
+                        v[j] = 0
+                        made_progress = True
+                        break
+        
+        attempts += 1
     
-    # Set remaining potentials to 0 if not computed
-    for i in range(rows):
-        if u[i] is None:
-            u[i] = 0
-    for j in range(cols):
-        if v[j] is None:
-            v[j] = 0
+    # Verify potentials - they should satisfy profit = u[i] + v[j] for all basic cells
+    for i, j in basic_cells:
+        if abs((u[i] + v[j]) - profit_matrix[i][j]) > 0.001:  # Allow small numerical errors
+            print(f"Warning: Potential equation not satisfied at ({i},{j})")
     
     # Prepare results
     steps = {
@@ -179,7 +205,7 @@ if __name__ == "__main__":
     print(f"Transport Cost: {'✓' if web_results['transport_cost'] == expected_transport else '✗'} (Expected: {expected_transport}, Got: {web_results['transport_cost']})")
     print(f"Purchase Cost: {'✓' if web_results['purchase_cost'] == expected_purchase else '✗'} (Expected: {expected_purchase}, Got: {web_results['purchase_cost']})")
     print(f"Income: {'✓' if web_results['income'] == expected_income else '✗'} (Expected: {expected_income}, Got: {web_results['income']})")
-    print(f"Profit: {'✓' if web_results['profit'] == expected_profit else '✗'} (Expected: {expected_profit}, Got: {web_results['profit']})")
+    print(f"Profit: {'✓' if web_results['profit'] == expected_profit else '✗'} (Expected: {expected_profit}, Got: {web_results['profit']}")
     
     # Test case from PDF (part d)
     print("\nTest Case 2 (PDF part d):")
