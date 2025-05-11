@@ -675,9 +675,9 @@
 
                                                         <th class="table-header text-blue-400 border-b border-gray-600"></th>
 
-                                                        <template x-for="j in resultData.allocation[0].length" :key="j">
+                                                        <template x-for="(_, j) in resultData.allocation[0]" :key="j">
 
-                                                            <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + j"></th>
+                                                            <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + (j+1)"></th>
 
                                                         </template>
 
@@ -693,7 +693,7 @@
 
                                                             <td class="table-cell text-blue-400 border-r border-gray-600" x-text="'D' + (i + 1)"></td>
 
-                                                            <template x-for="(cell, j) in row" :key="cell">
+                                                            <template x-for="(cell, j) in row" :key="j">
 
                                                                 <td class="table-cell bg-gray-700" x-text="cell"></td>
 
@@ -725,9 +725,9 @@
 
                                                         <th class="table-header text-blue-400 border-b border-gray-600"></th>
 
-                                                        <template x-for="j in resultData.initial_allocation[0].length" :key="j">
+                                                        <template x-for="(_, j) in resultData.initial_allocation[0]" :key="j">
 
-                                                            <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + j"></th>
+                                                            <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + (j+1)"></th>
 
                                                         </template>
 
@@ -743,7 +743,7 @@
 
                                                             <td class="table-cell text-blue-400 border-r border-gray-600" x-text="'D' + (i + 1)"></td>
 
-                                                            <template x-for="(cell, j) in row" :key="cell">
+                                                            <template x-for="(cell, j) in row" :key="j">
 
                                                                 <td class="table-cell" :class="cell > 0 ? 'bg-green-700' : 'bg-gray-700'">
 
@@ -789,9 +789,9 @@
 
                                                         <th class="table-header text-blue-400 border-b border-gray-600"></th>
 
-                                                        <template x-for="j in resultData.allocation[0].length" :key="j">
+                                                        <template x-for="(_, j) in resultData.allocation[0]" :key="j">
 
-                                                            <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + j"></th>
+                                                            <th class="table-header text-blue-400 border-b border-gray-600" x-text="'O' + (j+1)"></th>
 
                                                         </template>
 
@@ -807,7 +807,7 @@
 
                                                             <td class="table-cell text-blue-400 border-r border-gray-600" x-text="'D' + (i + 1)"></td>
 
-                                                            <template x-for="(cell, j) in row" :key="cell">
+                                                            <template x-for="(cell, j) in row" :key="j">
 
                                                                 <td class="table-cell" :class="cell > 0 ? 'bg-green-700' : 'bg-gray-700'">
 
